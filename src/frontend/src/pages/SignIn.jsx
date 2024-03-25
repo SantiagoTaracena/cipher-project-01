@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 import Button from '../components/Button'
 import '../styles/sign-up.sass'
 
@@ -59,7 +60,7 @@ const SignIn = () => {
             required
           />
         </div>
-        <Button buttonText="Iniciar Sesión" type="submit" />
+        <Link to="/mail"><Button buttonText="Iniciar Sesión" type="submit" /></Link>
       </form>
     </div>
   )

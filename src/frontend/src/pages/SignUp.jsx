@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 import Button from '../components/Button'
 import '../styles/sign-up.sass'
 
@@ -59,7 +60,7 @@ const SignUp = () => {
             required
           />
         </div>
-        <Button buttonText="Registrarse" type="submit" />
+        <Link to="/"><Button buttonText="Registrarse" type="submit" /></Link>
       </form>
     </div>
   )

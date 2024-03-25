@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import '../styles/sign-up-sign-in.sass'
+import Button from '../components/Button'
+import '../styles/sign-up.sass'
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -58,7 +59,7 @@ const SignUp = () => {
             required
           />
         </div>
-        <button type="submit">Registrarse</button>
+        <Button buttonText="Registrarse" type="submit" />
       </form>
     </div>
   )

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import '../styles/sign-up-sign-in.sass'
+import Button from '../components/Button'
+import '../styles/sign-up.sass'
 
 const SignIn = () => {
   const [formData, setFormData] = useState({
@@ -58,7 +59,7 @@ const SignIn = () => {
             required
           />
         </div>
-        <button type="submit">Iniciar Sesión</button>
+        <Button buttonText="Iniciar Sesión" type="submit" />
       </form>
     </div>
   )

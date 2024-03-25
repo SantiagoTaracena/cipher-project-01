@@ -4,7 +4,7 @@ import Button from '../components/Button'
 import '../styles/landing.sass'
 
 const Landing = () => (
-  <div className="container">
+  <main className="container">
     <h1>Proyecto de Cifrado</h1>
     <h3>Haz uso de nuestro servicio de correos electrónicos completamente seguro</h3>
     <div className="container-links">
@@ -12,7 +12,7 @@ const Landing = () => (
       <p>ó</p>
       <Link to="/sign-in"><Button buttonText="Inicia sesión" type="button" /></Link>
     </div>
-  </div>
+  </main>
 )
 
 export default Landing

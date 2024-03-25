@@ -21,7 +21,7 @@ const SignIn = () => {
   }
 
   return (
-    <div className="sign-up-container">
+    <main className="sign-up-container">
       <h1>Inicio de Sesión</h1>
       <form
         className="sign-up-form"
@@ -62,7 +62,7 @@ const SignIn = () => {
         </div>
         <Link to="/mail"><Button buttonText="Iniciar Sesión" type="submit" /></Link>
       </form>
-    </div>
+    </main>
   )
 }
 

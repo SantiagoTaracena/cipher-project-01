@@ -5,12 +5,14 @@ import '../styles/landing.sass'
 
 const Landing = () => (
   <main className="container">
-    <h1>Proyecto de Cifrado</h1>
-    <h3>Haz uso de nuestro servicio de correos electrónicos completamente seguro</h3>
-    <div className="container-links">
-      <Link to="/sign-up"><Button buttonText="Regístrate" type="button" /></Link>
-      <p>ó</p>
-      <Link to="/sign-in"><Button buttonText="Inicia sesión" type="button" /></Link>
+    <div className="information-card">
+      <h1>Proyecto de Cifrado</h1>
+      <h3>Haz uso de nuestro servicio de correos electrónicos completamente seguro</h3>
+      <div className="container-links">
+        <Link to="/sign-up"><Button buttonText="Regístrate" type="button" /></Link>
+        <p>ó</p>
+        <Link to="/sign-in"><Button buttonText="Inicia sesión" type="button" /></Link>
+      </div>
     </div>
   </main>
 )

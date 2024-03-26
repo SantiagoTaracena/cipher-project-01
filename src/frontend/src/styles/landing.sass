@@ -3,15 +3,42 @@
 .container
   width: 100%
   height: 100vh
-  background-color: $light-background-color-01
+  background-color: $dark-background-color-03
   display: flex
   flex-direction: column
   justify-content: center
   align-items: center
-  gap: 20px
 
-  .container-links
-    text-align: center
+  .information-card
+    width: 30%
+    height: 40%
+    background-color: $dark-background-color-02
     display: flex
     flex-direction: column
-    gap: 5px
+    justify-content: space-evenly
+    align-items: center
+    border-radius: 20px
+    box-shadow: 0px 0px 10px rgba(20, 20, 20, 1)
+
+    h1
+      color: white
+
+    h3
+      text-align: center
+      color: white
+      margin: 0px 15px
+
+    .container-links
+      text-align: center
+      display: flex
+      flex-direction: row
+      justify-content: center
+      align-items: center
+      gap: 20px
+
+      p
+        color: white
+
+    @media (min-width: 450px) and (min-height: 300px)
+      width: 450px
+      height: 300px

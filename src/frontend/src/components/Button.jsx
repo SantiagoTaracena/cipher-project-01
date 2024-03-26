@@ -1,8 +1,8 @@
 import React from 'react'
+import '../styles/button.sass'
 
 const Button = ({ buttonText, type, onClick }) => (
   <button
-    style={{ padding: '10px' }}
     type={type}
     onClick={onClick}
   >

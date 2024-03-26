@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
+import Header from '../components/Header'
 import MailPreview from '../components/MailPreview'
+import MailPanel from '../components/MailPanel'
 import '../styles/mail.sass'
 
 const dummyMails = [
@@ -15,30 +17,34 @@ const dummyMails = [
     username_destino: 'tar20017',
     username_origen: 'lop20679',
   },
+  {
+    id: 2,
+    mensaje_cifrado: 'jfslkkjsflfsjlksfjlkasjlkñsjlkñjlkñfñjlkasñjldsjlkñajñlkajñlkfdsjlkñasjklfñajlsfdjñlkañjlkd',
+    username_destino: 'tar20017',
+    username_origen: 'par20117',
+  },
 ]
 
 const Mail = () => {
   const [mails, setMails] = useState([])
   const [focusedMail, setFocusedMail] = useState(0)
   const [currentMail, setCurrentMail] = useState({ id: 0, mensaje_cifrado: '', username_destino: '', username_origen: '' })
-  const [redacting, setRedacting] = useState(false)
 
   useEffect(() => {
     setMails(dummyMails)
   }, [])
 
+  const updateFocusedMail = (mail) => {
+    const mailId = mail.id
+    setFocusedMail(mailId + 1)
+    const foundMail = dummyMails.find((mail) => (mail.id === mailId))
+    setCurrentMail(foundMail)
+  }
+
   return (
     <main className="main">
       <header className="header">
-        <div style={{ visibility: 'hidden' }}>
-          <h5>Nuevo Mail</h5>
-          <h5>Cerrar Sesión</h5>
-        </div>
-        <h1>Proyecto de Cifrado</h1>
-        <div>
-          <h5 onClick={() => setRedacting(true)}>Nuevo Mail</h5>
-          <h5>Cerrar Sesión</h5>
-        </div>
+        <Header />
       </header>
       <div className="content">
         <div className="mail-list">
@@ -46,31 +52,21 @@ const Mail = () => {
             <MailPreview
               emisor={mail.username_origen}
               content={mail.mensaje_cifrado}
-              onClick={() => {
-                const mailId = mail.id
-                setFocusedMail(mailId + 1)
-                setCurrentMail(dummyMails.find((mail) => (mail.id === mailId)))
-                setRedacting(false)
-              }}
+              onClick={() => updateFocusedMail(mail)}
             />
           ))}
         </div>
         <div className="mail-content">
           {(focusedMail) ? (
-            <>
-              {(redacting) ? (
-                <h1>Hola</h1>
-              ) : (
-                <>
-                  <h1>{focusedMail}</h1>
-                  <h3>De: {currentMail.username_origen}</h3>
-                  <h3>Para: {currentMail.username_destino}</h3>
-                  <h4>{currentMail.mensaje_cifrado}</h4>
-                  <button onClick={() => setFocusedMail(0)}>Quit</button>
-                </>
-              )}
-            </>
-          ) : null}
+            <MailPanel
+              emisor={currentMail.username_origen}
+              receptor={currentMail.username_destino}
+              content={currentMail.mensaje_cifrado}
+              closeMail={setFocusedMail}
+            />
+          ) : (
+            <h1>Hola</h1>
+          )}
         </div>
       </div>
     </main>

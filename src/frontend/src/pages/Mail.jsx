@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Header from '../components/Header'
 import MailPreview from '../components/MailPreview'
 import MailPanel from '../components/MailPanel'
+import WriteMail from '../components/WriteMail'
 import '../styles/mail.sass'
 
 const dummyMails = [
@@ -19,7 +20,7 @@ const dummyMails = [
   },
   {
     id: 2,
-    mensaje_cifrado: 'jfslkkjsflfsjlksfjlkasjlkñsjlkñjlkñfñjlkasñjldsjlkñajñlkajñlkfdsjlkñasjklfñajlsfdjñlkañjlkd',
+    mensaje_cifrado: 'asdf',
     username_destino: 'tar20017',
     username_origen: 'par20117',
   },
@@ -65,7 +66,7 @@ const Mail = () => {
               closeMail={setFocusedMail}
             />
           ) : (
-            <h1>Hola</h1>
+            <WriteMail />
           )}
         </div>
       </div>

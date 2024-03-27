@@ -6,7 +6,7 @@ import '../styles/landing.sass'
 const Landing = () => (
   <main className="container">
     <div className="information-card">
-      <h1>Proyecto de Cifrado</h1>
+      <h1>Cipher Mail</h1>
       <h3>Haz uso de nuestro servicio de correos electrónicos completamente seguro</h3>
       <div className="container-links">
         <Link to="/sign-up"><Button buttonText="Regístrate" type="button" /></Link>

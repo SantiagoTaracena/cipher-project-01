@@ -62,7 +62,7 @@ const SignIn = () => {
             />
           </div>
           <div className="sign-up-buttons">
-            <Link to="/"><Button buttonText="Iniciar Sesión" type="submit" /></Link>
+            <Link to="/mail"><Button buttonText="Iniciar Sesión" type="submit" /></Link>
             <Link to="/"><Button buttonText="Volver" type="button" /></Link>
           </div>
         </form>

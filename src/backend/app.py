@@ -34,7 +34,6 @@ def get_users():
     cur.close()
     return jsonify(rows)
 
-
 @app.get("/users/<string:user>/key")
 def get_user_key(user):
     cur = conn.cursor()
@@ -63,7 +62,22 @@ def post_user():
     cur.execute(f"INSERT INTO Usuario (id, public_key, username, fecha_creacion, password) VALUES ({max_id + 1}, 'test-public-key', '{username}', '{datetime.date.today()}', '{password}')")
     conn.commit()
     cur.close()
-    return "200"
+    return jsonify({ "status": 200 })
+
+@app.post("/messages/<string:user>")
+def post_message(user):
+    data = request.json
+    message = data.get("message")
+    emisor = data.get("emisor")
+    receptor = data.get("receptor")
+    cur = conn.cursor()
+    cur.execute("SELECT MAX(id) FROM Mensajes")
+    rows = cur.fetchall()
+    max_id = rows[0][0]
+    cur.execute(f"INSERT INTO Mensajes (id, mensaje_cifrado, username_destino, username_origen) VALUES ({max_id + 1}, '{message}', '{receptor}', '{emisor}')")
+    conn.commit()
+    cur.close()
+    return jsonify({ "status": 200 })
 
 if (__name__ == "__main__"):
     app.run(debug=True)

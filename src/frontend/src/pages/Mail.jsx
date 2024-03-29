@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
+import axios from 'axios'
+import { UserContext } from '../providers/UserProvider'
 import Header from '../components/Header'
 import MailPreview from '../components/MailPreview'
 import MailPanel from '../components/MailPanel'
@@ -27,12 +29,29 @@ const dummyMails = [
 ]
 
 const Mail = () => {
+  const [unparsedMails, setUnparsedMails] = useState([])
   const [mails, setMails] = useState([])
   const [focusedMail, setFocusedMail] = useState(0)
   const [currentMail, setCurrentMail] = useState({ id: 0, mensaje_cifrado: '', username_destino: '', username_origen: '' })
 
+  const { user, setUser } = useContext(UserContext)
+
   useEffect(() => {
-    setMails(dummyMails)
+    axios.get(`${import.meta.env.VITE_APP_API_URL}/messages/${user.username}`)
+    .then((response) => setUnparsedMails(response.data))
+    .catch((error) => console.error('Error al realizar la solicitud', error))
+    console.log(unparsedMails)
+    const parsedMails = []
+    unparsedMails.forEach((unparsedMail) => {
+      const parsedMail = {
+        id: unparsedMail[0],
+        mensaje_cifrado: unparsedMail[1],
+        username_destino: unparsedMail[2],
+        username_origen: unparsedMail[3],
+      }
+      parsedMails.push(parsedMail)
+    })
+    setMails(parsedMails)
   }, [])
 
   const updateFocusedMail = (mail) => {
@@ -49,8 +68,9 @@ const Mail = () => {
       </header>
       <div className="content">
         <div className="mail-list">
-          {mails.map((mail) => (
+          {mails.map((mail, index) => (
             <MailPreview
+              key={index}
               emisor={mail.username_origen}
               content={mail.mensaje_cifrado}
               onClick={() => updateFocusedMail(mail)}

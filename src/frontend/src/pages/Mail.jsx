@@ -29,7 +29,6 @@ const dummyMails = [
 ]
 
 const Mail = () => {
-  const [unparsedMails, setUnparsedMails] = useState([])
   const [mails, setMails] = useState([])
   const [focusedMail, setFocusedMail] = useState(0)
   const [currentMail, setCurrentMail] = useState({ id: 0, mensaje_cifrado: '', username_destino: '', username_origen: '' })
@@ -38,26 +37,28 @@ const Mail = () => {
 
   useEffect(() => {
     axios.get(`${import.meta.env.VITE_APP_API_URL}/messages/${user.username}`)
-    .then((response) => setUnparsedMails(response.data))
-    .catch((error) => console.error('Error al realizar la solicitud', error))
-    console.log(unparsedMails)
-    const parsedMails = []
-    unparsedMails.forEach((unparsedMail) => {
-      const parsedMail = {
-        id: unparsedMail[0],
-        mensaje_cifrado: unparsedMail[1],
-        username_destino: unparsedMail[2],
-        username_origen: unparsedMail[3],
-      }
-      parsedMails.push(parsedMail)
+    .then((response) => {
+      const unparsedMails = response.data
+      const parsedMails = []
+      unparsedMails.forEach((unparsedMail) => {
+        const parsedMail = {
+          id: unparsedMail[0],
+          mensaje_cifrado: unparsedMail[1],
+          username_destino: unparsedMail[2],
+          username_origen: unparsedMail[3],
+        }
+        parsedMails.push(parsedMail)
+      })
+      console.log('parsedMails', parsedMails)
+      setMails(parsedMails)
     })
-    setMails(parsedMails)
+    .catch((error) => console.error('Error al realizar la solicitud', error))
   }, [])
 
   const updateFocusedMail = (mail) => {
     const mailId = mail.id
     setFocusedMail(mailId + 1)
-    const foundMail = dummyMails.find((mail) => (mail.id === mailId))
+    const foundMail = mails.find((mail) => (mail.id === mailId))
     setCurrentMail(foundMail)
   }
 

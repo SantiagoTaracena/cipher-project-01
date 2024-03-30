@@ -13,7 +13,9 @@ const Mail = () => {
   const [mails, setMails] = useState([])
   const [groups, setGroups] = useState([])
   const [focusedMail, setFocusedMail] = useState(0)
-  const [currentMail, setCurrentMail] = useState({ id: 0, mensaje_cifrado: '', username_destino: '', username_origen: '' })
+  const [currentMail, setCurrentMail] = useState({ id: 0, message: '', receptor: '', emisor: '' })
+  const [focusedGroup, setFocusedGroup] = useState(0)
+  const [currentGroup, setCurrentGroup] = useState({ id: 0, groupName: '', users: [], password: '', key: '' })
 
   const { user, setUser } = useContext(UserContext)
 
@@ -30,9 +32,9 @@ const Mail = () => {
         unparsedMails.forEach((unparsedMail) => {
           const parsedMail = {
             id: unparsedMail[0],
-            mensaje_cifrado: unparsedMail[1],
-            username_destino: unparsedMail[2],
-            username_origen: unparsedMail[3],
+            message: unparsedMail[1],
+            receptor: unparsedMail[2],
+            emisor: unparsedMail[3],
           }
           parsedMails.push(parsedMail)
         })
@@ -78,8 +80,8 @@ const Mail = () => {
               {mails.map((mail, index) => (
                 <MailPreview
                   key={index}
-                  emisor={mail.username_origen}
-                  content={mail.mensaje_cifrado}
+                  emisor={mail.emisor}
+                  content={mail.message}
                   onClick={() => updateFocusedMail(mail)}
                 />
               ))}
@@ -89,7 +91,7 @@ const Mail = () => {
               {groups.map((group, index) => (
                 <GroupPreview
                   key={index}
-                  onClick={() => console.log('group', group[1])}
+                  onClick={() => setFocusedGroup(true)}
                   groupName={group[1]}
                 />
               ))}
@@ -99,9 +101,9 @@ const Mail = () => {
         <div className="mail-content">
           {(focusedMail) ? (
             <MailPanel
-              emisor={currentMail.username_origen}
-              receptor={currentMail.username_destino}
-              content={currentMail.mensaje_cifrado}
+              emisor={currentMail.emisor}
+              receptor={currentMail.receptor}
+              content={currentMail.message}
               closeMail={setFocusedMail}
             />
           ) : (

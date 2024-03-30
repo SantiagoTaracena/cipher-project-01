@@ -4,6 +4,7 @@ import Landing from './pages/Landing'
 import SignUp from './pages/SignUp'
 import SignIn from './pages/SignIn'
 import Mail from './pages/Mail'
+import Group from './pages/Group'
 
 const router = createBrowserRouter([
   {
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
   {
     path: '/mail',
     element: <Mail />,
+  },
+  {
+    path: '/group',
+    element: <Group />,
   },
 ])
 

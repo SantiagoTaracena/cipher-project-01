@@ -50,6 +50,20 @@ def get_user_messages(user):
     cur.close()
     return jsonify(rows)
 
+@app.get("/groups")
+def get_groups():
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM Grupos")
+    rows = cur.fetchall()
+    cur.close()
+    return jsonify(rows)
+
+@app.get("/messages/groups/<string:group>")
+def get_group_messages(group):
+    group = group.lower().replace(" ", "-")
+    cur = conn.cursor()
+    cur.execute(f"SELECT * FROM Grupos")
+
 @app.post("/users")
 def post_user():
     data = request.json
@@ -75,6 +89,25 @@ def post_message(user):
     rows = cur.fetchall()
     max_id = rows[0][0]
     cur.execute(f"INSERT INTO Mensajes (id, mensaje_cifrado, username_destino, username_origen) VALUES ({max_id + 1}, '{message}', '{receptor}', '{emisor}')")
+    conn.commit()
+    cur.close()
+    return jsonify({ "status": 200 })
+
+@app.post("/groups")
+def post_group():
+    data = request.json
+    name = data.get("groupName").lower().replace(" ", "-")
+    members = data.get("groupMembers")
+    password = data.get("password")
+    cur = conn.cursor()
+    cur.execute("SELECT MAX(id) FROM Grupos")
+    rows = cur.fetchall()
+    max_id = rows[0][0]
+    members_formatted_array = "{"
+    for member in members:
+        members_formatted_array += f"\"{member}\", "
+    members_formatted_array = f"{members_formatted_array[:-2]}" + "}"
+    cur.execute(f"INSERT INTO Grupos (id, nombre, usuarios, contraseña, clave_simetrica) VALUES ({max_id + 1}, '{name}', '{members_formatted_array}', '{password}', 'simetric-key')")
     conn.commit()
     cur.close()
     return jsonify({ "status": 200 })

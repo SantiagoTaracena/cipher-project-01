@@ -3,11 +3,12 @@ import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { UserContext } from '../providers/UserProvider'
 import Button from '../components/Button'
-import '../styles/sign-up.sass'
+import '../styles/group.sass'
 
-const SignIn = () => {
+const Group = () => {
   const [formData, setFormData] = useState({
-    username: '',
+    groupName: '',
+    members: '',
     password: '',
   })
 
@@ -22,36 +23,41 @@ const SignIn = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault()
-    axios.get(`${import.meta.env.VITE_APP_API_URL}/users`)
-    .then((response) => {
-      const users = response.data
-      const foundUser = users.find((user) => user.includes(formData.username) && user.includes(formData.password))
-      if (foundUser) {
-        const [id, public_key, username, fecha_creacion, password] = foundUser
-        setUser({ id, public_key, username, fecha_creacion, password })
-        navigate('/mail')
-      } else {
-        alert('No se encontró al usuario')
-      }
-    })
+    const groupMembers = [user.username, ...formData.members.split(', ')]
+    const data = { groupName: formData.groupName, groupMembers, password: formData.password }
+    axios.post(`${import.meta.env.VITE_APP_API_URL}/groups`, data)
+    .then((response) => alert('Grupo enviado'))
     .catch((error) => console.error('Error al realizar la solicitud', error))
+    navigate('/mail')
   }
 
   return (
-    <main className="sign-up-container">
-      <div className="sign-up-card">
-        <h1>Inicio de Sesión</h1>
+    <main className="container">
+      <div className="information-card">
+        <h1>Crear Grupo</h1>
+        <h3>Crea un grupo ingresando el nombre que lo identifica, los usuarios separados por coma y espacio (, ), y la contraseña</h3>
         <form
           className="sign-up-form"
           onSubmit={handleSubmit}
         >
           <div className="sign-up-input-entry">
-            <label htmlFor="username">Nombre de usuario:</label>
+            <label htmlFor="group-name">Nombre del grupo:</label>
             <input
               type="text"
-              id="username"
-              name="username"
-              value={formData.username}
+              id="group-name"
+              name="groupName"
+              value={formData.groupName}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="sign-up-input-entry">
+            <label htmlFor="members">Miembros del grupo:</label>
+            <input
+              type="text"
+              id="members"
+              name="members"
+              value={formData.members}
               onChange={handleChange}
               required
             />
@@ -68,8 +74,8 @@ const SignIn = () => {
             />
           </div>
           <div className="sign-up-buttons">
-            <Button buttonText="Iniciar Sesión" type="submit" onClick={handleSubmit} />
-            <Link to="/"><Button buttonText="Volver" type="button" /></Link>
+            <Button buttonText="Crear grupo" type="submit" onClick={handleSubmit} />
+            <Link to="/mail"><Button buttonText="Volver" type="button" /></Link>
           </div>
         </form>
       </div>
@@ -77,4 +83,4 @@ const SignIn = () => {
   )
 }
 
-export default SignIn
+export default Group

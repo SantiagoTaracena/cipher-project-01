@@ -7,7 +7,7 @@ import '../styles/sign-up.sass'
 const SignUp = () => {
   const [formData, setFormData] = useState({
     username: '',
-    password: ''
+    password: '',
   })
 
   const handleChange = (event) => {

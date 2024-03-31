@@ -8,7 +8,6 @@ const Header = () => (
       <h3>Cerrar Sesión</h3>
       <h3>Crear Grupo</h3>
     </div>
-
     <h1>Cipher Mail</h1>
     <div>
       <Link to="/"><h3>Cerrar Sesión</h3></Link>

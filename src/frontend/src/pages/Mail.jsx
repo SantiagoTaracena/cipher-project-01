@@ -130,6 +130,7 @@ const Mail = () => {
               {(focusedGroup) ? (
                 <GroupPanel
                   groupId={currentGroup.id}
+                  groupName={currentGroup.groupName}
                   closeMail={setFocusedGroup}
                 />
               ) : (

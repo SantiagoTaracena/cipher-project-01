@@ -3,7 +3,7 @@ import axios from 'axios'
 import Button from '../components/Button'
 import '../styles/group-panel.sass'
 
-const GroupPanel = ({ groupId, closeMail }) => {
+const GroupPanel = ({ groupId, groupName, closeMail }) => {
   const [messages, setMessages] = useState([])
 
   useEffect(() => {
@@ -16,6 +16,9 @@ const GroupPanel = ({ groupId, closeMail }) => {
 
   return (
     <div className="group-panel-container">
+      <div className="group-name">
+        <h1>{groupName}</h1>
+      </div>
       <div className="group-messages">
         {messages && messages.map((message, index) => (
           <div

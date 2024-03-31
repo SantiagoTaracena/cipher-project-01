@@ -5,6 +5,7 @@ import Header from '../components/Header'
 import MailPreview from '../components/MailPreview'
 import GroupPreview from '../components/GroupPreview'
 import MailPanel from '../components/MailPanel'
+import GroupPanel from '../components/GroupPanel'
 import WriteMail from '../components/WriteMail'
 import '../styles/mail.sass'
 
@@ -15,13 +16,23 @@ const Mail = () => {
   const [focusedMail, setFocusedMail] = useState(0)
   const [currentMail, setCurrentMail] = useState({ id: 0, message: '', receptor: '', emisor: '' })
   const [focusedGroup, setFocusedGroup] = useState(0)
-  const [currentGroup, setCurrentGroup] = useState({ id: 0, groupName: '', users: [], password: '', key: '' })
+  const [currentGroup, setCurrentGroup] = useState({ id: 0, groupName: '', users: [], key: '' })
+  const [groupMessages, setGroupMessages] = useState([])
 
   const { user, setUser } = useContext(UserContext)
 
   useEffect(() => {
     switchMails()
   }, [personalMails])
+
+  const capitalizeAndReplace = (string) => {
+    let words = string.split('-')
+    let capitalizedWords = words.map((word) => {
+      return word.charAt(0).toUpperCase() + word.slice(1)
+    })
+    let result = capitalizedWords.join(' ')
+    return result
+  }
 
   const switchMails = () => {
     if (personalMails) {
@@ -31,10 +42,10 @@ const Mail = () => {
         const parsedMails = []
         unparsedMails.forEach((unparsedMail) => {
           const parsedMail = {
-            id: unparsedMail[0],
-            message: unparsedMail[1],
-            receptor: unparsedMail[2],
-            emisor: unparsedMail[3],
+            id: unparsedMail.id,
+            message: unparsedMail.message,
+            receptor: unparsedMail.username_destino,
+            emisor: unparsedMail.username_origen,
           }
           parsedMails.push(parsedMail)
         })
@@ -47,8 +58,14 @@ const Mail = () => {
         const groups = response.data
         const groupsToShow = []
         groups.forEach((group) => {
-          if (group[2].includes(user.username)) {
-            groupsToShow.push(group)
+          if (group.usuarios.includes(user.username)) {
+            const parsedGroup = {
+              id: group.id,
+              groupName: capitalizeAndReplace(group.nombre),
+              users: group.usuarios,
+              key: group.clave_simetrica,
+            }
+            groupsToShow.push(parsedGroup)
           }
         })
         setGroups(groupsToShow)
@@ -60,8 +77,17 @@ const Mail = () => {
   const updateFocusedMail = (mail) => {
     const mailId = mail.id
     setFocusedMail(mailId + 1)
+    setFocusedGroup(0)
     const foundMail = mails.find((mail) => (mail.id === mailId))
     setCurrentMail(foundMail)
+  }
+
+  const updateFocusedGroup = (group) => {
+    const groupId = group.id
+    setFocusedGroup(groupId + 1)
+    setFocusedMail(0)
+    const foundGroup = groups.find((group) => (group.id === groupId))
+    setCurrentGroup(foundGroup)
   }
 
   return (
@@ -91,21 +117,29 @@ const Mail = () => {
               {groups.map((group, index) => (
                 <GroupPreview
                   key={index}
-                  onClick={() => setFocusedGroup(true)}
-                  groupName={group[1]}
+                  onClick={() => updateFocusedGroup(group)}
+                  groupName={group.groupName}
                 />
               ))}
             </div>
           )}
         </div>
         <div className="mail-content">
-          {(focusedMail) ? (
-            <MailPanel
-              emisor={currentMail.emisor}
-              receptor={currentMail.receptor}
-              content={currentMail.message}
-              closeMail={setFocusedMail}
-            />
+          {(focusedMail || focusedGroup) ? (
+            <div style={{ width: '100%', height: '100%' }}>
+              {(focusedGroup) ? (
+                <GroupPanel
+                  groupId={currentGroup.id}
+                />
+              ) : (
+                <MailPanel
+                  emisor={currentMail.emisor}
+                  receptor={currentMail.receptor}
+                  content={currentMail.message}
+                  closeMail={setFocusedMail}
+                />
+              )}
+            </div>
           ) : (
             <WriteMail />
           )}

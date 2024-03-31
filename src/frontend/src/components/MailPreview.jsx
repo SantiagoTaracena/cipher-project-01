@@ -3,7 +3,7 @@ import '../styles/mail-preview.sass'
 
 const MailPreview = ({ emisor, content, onClick }) => (
   <div
-    class="mail-container"
+    className="mail-container"
     onClick={onClick}
   >
     <h3>De: {emisor}</h3>

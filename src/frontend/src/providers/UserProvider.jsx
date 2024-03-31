@@ -3,7 +3,7 @@ import React, { createContext, useState, useMemo } from 'react'
 const UserContext = createContext()
 
 const UserProvider = ({ children }) => {
-  const [user, setUser] = useState({ id: 0, public_key: '', username: '', fecha_creacion: '', password: '' })
+  const [user, setUser] = useState({ id: 0, username: '' })
 
   const state = useMemo(() => ({ user, setUser }), [user])
 

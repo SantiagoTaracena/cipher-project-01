@@ -3,7 +3,7 @@ import '../styles/group-preview.sass'
 
 const GroupPreview = ({ onClick, groupName }) => (
   <div
-    class="group-container"
+    className="group-container"
     onClick={onClick}
   >
     <h3>Grupo: {groupName}</h3>

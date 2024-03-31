@@ -27,20 +27,32 @@ def hello():
     return "Hello world!"
 
 @app.get("/users")
-def get_users():
+def get_usersss():
     cur = conn.cursor()
     cur.execute("SELECT * FROM Usuario")
     rows = cur.fetchall()
     cur.close()
-    return jsonify(rows)
+    users_json = []
+    for row in rows:
+        user = {}
+        user["id"] = row[0]
+        user["username"] = row[2]
+        users_json.append(user)
+    return jsonify(users_json)
 
 @app.get("/users/<string:user>/key")
 def get_user_key(user):
     cur = conn.cursor()
-    cur.execute(f"SELECT public_key FROM Usuario WHERE username = '{user}'")
+    cur.execute(f"SELECT username, public_key FROM Usuario WHERE username = '{user}'")
     rows = cur.fetchall()
     cur.close()
-    return jsonify(rows)
+    keys_json = []
+    for row in rows:
+        key = {}
+        key["username"] = row[0]
+        key["public_key"] = row[1]
+        keys_json.append(key)
+    return jsonify(keys_json)
 
 @app.get("/messages/<string:user>")
 def get_user_messages(user):
@@ -48,7 +60,15 @@ def get_user_messages(user):
     cur.execute(f"SELECT * FROM Mensajes WHERE username_destino = '{user}'")
     rows = cur.fetchall()
     cur.close()
-    return jsonify(rows)
+    messages_json = []
+    for row in rows:
+        message = {}
+        message["id"] = row[0]
+        message["message"] = row[1]
+        message["username_destino"] = row[2]
+        message["username_origen"] = row[3]
+        messages_json.append(message)
+    return jsonify(messages_json)
 
 @app.get("/groups")
 def get_groups():
@@ -56,13 +76,34 @@ def get_groups():
     cur.execute("SELECT * FROM Grupos")
     rows = cur.fetchall()
     cur.close()
-    return jsonify(rows)
+    groups_json = []
+    for row in rows:
+        group = {}
+        group["id"] = row[0]
+        group["nombre"] = row[1]
+        group["usuarios"] = row[2]
+        group["clave_simetrica"] = row[4]
+        groups_json.append(group)
+    return jsonify(groups_json)
 
-@app.get("/messages/groups/<string:group>")
-def get_group_messages(group):
-    group = group.lower().replace(" ", "-")
+@app.get("/messages/groups/<int:group_id>")
+def get_group_messages(group_id):
     cur = conn.cursor()
-    cur.execute(f"SELECT * FROM Grupos")
+    cur.execute(f"""
+        SELECT * FROM Mensajes_Grupos mg
+        WHERE mg.id_grupo = {group_id}
+    """)
+    rows = cur.fetchall()
+    cur.close()
+    group_messages_json = []
+    for row in rows:
+        group_message = {}
+        group_message["id"] = row[0]
+        group_message["id_group"] = row[1]
+        group_message["author"] = row[2]
+        group_message["mensaje"] = row[3]
+        group_messages_json.append(group_message)
+    return jsonify(group_messages_json)
 
 @app.post("/users")
 def post_user():

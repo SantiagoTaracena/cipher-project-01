@@ -25,10 +25,9 @@ const SignIn = () => {
     axios.get(`${import.meta.env.VITE_APP_API_URL}/users`)
     .then((response) => {
       const users = response.data
-      const foundUser = users.find((user) => user.includes(formData.username) && user.includes(formData.password))
+      const foundUser = users.find((user) => (user.username === formData.username))
       if (foundUser) {
-        const [id, public_key, username, fecha_creacion, password] = foundUser
-        setUser({ id, public_key, username, fecha_creacion, password })
+        setUser({ id: foundUser.id, username: foundUser.username })
         navigate('/mail')
       } else {
         alert('No se encontró al usuario')

@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import os
 import psycopg2
 import datetime
+from rsa_cipher import *
 
 app = Flask(__name__)
 CORS(app)
@@ -110,14 +111,15 @@ def post_user():
     data = request.json
     username = data.get("username")
     password = data.get("password")
+    public_key, private_key = create_keys()
     cur = conn.cursor()
     cur.execute("SELECT MAX(id) FROM Usuario")
     rows = cur.fetchall()
     max_id = rows[0][0]
-    cur.execute(f"INSERT INTO Usuario (id, public_key, username, fecha_creacion, password) VALUES ({max_id + 1}, 'test-public-key', '{username}', '{datetime.date.today()}', '{password}')")
+    cur.execute(f"INSERT INTO Usuario (id, public_key, username, fecha_creacion, password) VALUES ({max_id + 1}, '{public_key}', '{username}', '{datetime.date.today()}', '{password}')")
     conn.commit()
     cur.close()
-    return jsonify({ "status": 200 })
+    return jsonify({ "status": 200, "private_key": private_key })
 
 @app.post("/messages/<string:user>")
 def post_message(user):

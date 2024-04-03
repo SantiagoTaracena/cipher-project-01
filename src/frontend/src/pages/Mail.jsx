@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react'
 import axios from 'axios'
 import { UserContext } from '../providers/UserProvider'
 import Header from '../components/Header'
-import MailPreview from '../components/MailPreview'
+import UsersPreview from '../components/UsersPreview'
 import GroupPreview from '../components/GroupPreview'
 import MailPanel from '../components/MailPanel'
 import GroupPanel from '../components/GroupPanel'
@@ -11,10 +11,10 @@ import '../styles/mail.sass'
 
 const Mail = () => {
   const [personalMails, setPersonalMails] = useState(true)
-  const [mails, setMails] = useState([])
+  const [users, setUsers] = useState([])
   const [groups, setGroups] = useState([])
-  const [focusedMail, setFocusedMail] = useState(0)
-  const [currentMail, setCurrentMail] = useState({ id: 0, message: '', receptor: '', emisor: '' })
+  const [focusedUser, setFocusedUser] = useState(0)
+  const [currentUser, setCurrentUser] = useState({ id: 0, username: '' })
   const [focusedGroup, setFocusedGroup] = useState(0)
   const [currentGroup, setCurrentGroup] = useState({ id: 0, groupName: '', users: [], key: '' })
   const [groupMessages, setGroupMessages] = useState([])
@@ -36,20 +36,18 @@ const Mail = () => {
 
   const switchMails = () => {
     if (personalMails) {
-      axios.get(`${import.meta.env.VITE_APP_API_URL}/messages/${user.username}`)
+      axios.get(`${import.meta.env.VITE_APP_API_URL}/users`)
       .then((response) => {
-        const unparsedMails = response.data
-        const parsedMails = []
-        unparsedMails.forEach((unparsedMail) => {
-          const parsedMail = {
-            id: unparsedMail.id,
-            message: unparsedMail.message,
-            receptor: unparsedMail.username_destino,
-            emisor: unparsedMail.username_origen,
+        const unparsedUsers = response.data
+        const parsedUsers = []
+        unparsedUsers.forEach((unparsedUser) => {
+          const parsedUser = {
+            id: unparsedUser.id,
+            username: unparsedUser.username,
           }
-          parsedMails.push(parsedMail)
+          parsedUsers.push(parsedUser)
         })
-        setMails(parsedMails)
+        setUsers(parsedUsers)
       })
       .catch((error) => console.error('Error al realizar la solicitud', error))
     } else {
@@ -74,18 +72,18 @@ const Mail = () => {
     }
   }
 
-  const updateFocusedMail = (mail) => {
-    const mailId = mail.id
-    setFocusedMail(mailId + 1)
+  const updateFocusedUser = (user) => {
+    const userId = user.id
+    setFocusedUser(userId + 1)
     setFocusedGroup(0)
-    const foundMail = mails.find((mail) => (mail.id === mailId))
-    setCurrentMail(foundMail)
+    const foundUser = users.find((user) => (user.id === userId))
+    setCurrentUser(foundUser)
   }
 
   const updateFocusedGroup = (group) => {
     const groupId = group.id
     setFocusedGroup(groupId + 1)
-    setFocusedMail(0)
+    setFocusedUser(0)
     const foundGroup = groups.find((group) => (group.id === groupId))
     setCurrentGroup(foundGroup)
   }
@@ -103,12 +101,11 @@ const Mail = () => {
           </div>
           {(personalMails) ? (
             <div>
-              {mails.map((mail, index) => (
-                <MailPreview
+              {users.map((user, index) => (
+                <UsersPreview
                   key={index}
-                  emisor={mail.emisor}
-                  content={mail.message}
-                  onClick={() => updateFocusedMail(mail)}
+                  username={user.username}
+                  onClick={() => updateFocusedUser(user)}
                 />
               ))}
             </div>
@@ -125,7 +122,7 @@ const Mail = () => {
           )}
         </div>
         <div className="mail-content">
-          {(focusedMail || focusedGroup) ? (
+          {(focusedUser || focusedGroup) ? (
             <div style={{ width: '100%', height: '100%' }}>
               {(focusedGroup) ? (
                 <GroupPanel
@@ -135,10 +132,10 @@ const Mail = () => {
                 />
               ) : (
                 <MailPanel
-                  emisor={currentMail.emisor}
-                  receptor={currentMail.receptor}
-                  content={currentMail.message}
-                  closeMail={setFocusedMail}
+                  emisor={currentUser.username}
+                  receptor={user.username}
+                  content={currentUser.message}
+                  closeMail={setFocusedUser}
                 />
               )}
             </div>

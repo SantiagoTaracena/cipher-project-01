@@ -112,6 +112,7 @@ def post_user():
     username = data.get("username")
     password = data.get("password")
     public_key, private_key = create_keys()
+    print(public_key)
     cur = conn.cursor()
     cur.execute("SELECT MAX(id) FROM Usuario")
     rows = cur.fetchall()
@@ -120,6 +121,21 @@ def post_user():
     conn.commit()
     cur.close()
     return jsonify({ "status": 200, "private_key": private_key })
+
+@app.post("/users/<string:user>")
+def auth_user(user):
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM Usuario")
+    rows = cur.fetchall()
+    auth = False
+    id = 0
+    username = ""
+    for row in rows:
+        if (user == row[2]):
+            auth = True
+            id = row[0]
+            username = row[2]
+    return jsonify({ "status": 200, "auth": auth, "id": id, "username": username })
 
 @app.post("/messages/<string:user>")
 def post_message(user):

@@ -111,7 +111,7 @@ def post_user():
     data = request.json
     username = data.get("username")
     password = data.get("password")
-    public_key, private_key = create_keys()
+    public_key, private_key = create_new_keys()
     cur = conn.cursor()
     cur.execute("SELECT MAX(id) FROM Usuario")
     rows = cur.fetchall()
@@ -151,6 +151,15 @@ def post_group():
         members_formatted_array += f"\"{member}\", "
     members_formatted_array = f"{members_formatted_array[:-2]}" + "}"
     cur.execute(f"INSERT INTO Grupos (id, nombre, usuarios, contraseña, clave_simetrica) VALUES ({max_id + 1}, '{name}', '{members_formatted_array}', '{password}', 'simetric-key')")
+    conn.commit()
+    cur.close()
+    return jsonify({ "status": 200 })
+
+@app.put("/users/<string:user>/key")
+def update_user_key(user, private_key):
+    public_key = update_public_key(private_key)
+    cur = conn.cursor()
+    cur.execute(f"UPDATE Usuario SET public_key = {public_key} WHERE username = {user}")
     conn.commit()
     cur.close()
     return jsonify({ "status": 200 })

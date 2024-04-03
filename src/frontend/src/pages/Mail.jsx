@@ -11,7 +11,7 @@ import '../styles/mail.sass'
 
 const Mail = () => {
   const [personalMails, setPersonalMails] = useState(true)
-  const [mails, setMails] = useState([])
+  const [users, setUsers] = useState([])
   const [groups, setGroups] = useState([])
   const [focusedMail, setFocusedMail] = useState(0)
   const [currentMail, setCurrentMail] = useState({ id: 0, message: '', receptor: '', emisor: '' })
@@ -49,7 +49,7 @@ const Mail = () => {
           }
           parsedMails.push(parsedMail)
         })
-        setMails(parsedMails)
+        setUsers(parsedMails)
       })
       .catch((error) => console.error('Error al realizar la solicitud', error))
     } else {
@@ -78,7 +78,7 @@ const Mail = () => {
     const mailId = mail.id
     setFocusedMail(mailId + 1)
     setFocusedGroup(0)
-    const foundMail = mails.find((mail) => (mail.id === mailId))
+    const foundMail = users.find((mail) => (mail.id === mailId))
     setCurrentMail(foundMail)
   }
 
@@ -103,7 +103,7 @@ const Mail = () => {
           </div>
           {(personalMails) ? (
             <div>
-              {mails.map((mail, index) => (
+              {users.map((mail, index) => (
                 <MailPreview
                   key={index}
                   emisor={mail.emisor}

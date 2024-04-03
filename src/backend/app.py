@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, session, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
@@ -112,6 +112,7 @@ def post_user():
     username = data.get("username")
     password = data.get("password")
     public_key, private_key = create_new_keys()
+    session['private_key'] = private_key
     cur = conn.cursor()
     cur.execute("SELECT MAX(id) FROM Usuario")
     rows = cur.fetchall()
@@ -156,8 +157,8 @@ def post_group():
     return jsonify({ "status": 200 })
 
 @app.put("/users/<string:user>/key")
-def update_user_key(user, private_key):
-    public_key = update_public_key(private_key)
+def update_user_key(user):
+    public_key = update_public_key(session.get('private_key'))
     cur = conn.cursor()
     cur.execute(f"UPDATE Usuario SET public_key = {public_key} WHERE username = {user}")
     conn.commit()

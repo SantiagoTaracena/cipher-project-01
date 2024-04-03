@@ -6,8 +6,7 @@ const MailPanel = ({ emisor, receptor, content, closeMail }) => (
   <div className="mail-panel">
     <div className="mail-information">
       <div className="mail-emisor-receptor">
-        <h3 className="emisor">De: {emisor}</h3>
-        <h3 className="receptor">Para: {receptor}</h3>
+        <h3 className="emisor">Chat con: {emisor}</h3>
       </div>
       <div className="mail-message">
         <p>{content}</p>

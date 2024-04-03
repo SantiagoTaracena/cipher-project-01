@@ -13,8 +13,8 @@ const Mail = () => {
   const [personalMails, setPersonalMails] = useState(true)
   const [users, setUsers] = useState([])
   const [groups, setGroups] = useState([])
-  const [focusedMail, setFocusedMail] = useState(0)
-  const [currentMail, setCurrentMail] = useState({ id: 0, message: '', receptor: '', emisor: '' })
+  const [focusedUser, setFocusedUser] = useState(0)
+  const [currentUser, setCurrentUser] = useState({ id: 0, username: '' })
   const [focusedGroup, setFocusedGroup] = useState(0)
   const [currentGroup, setCurrentGroup] = useState({ id: 0, groupName: '', users: [], key: '' })
   const [groupMessages, setGroupMessages] = useState([])
@@ -72,18 +72,18 @@ const Mail = () => {
     }
   }
 
-  const updateFocusedMail = (mail) => {
-    const mailId = mail.id
-    setFocusedMail(mailId + 1)
+  const updateFocusedUser = (user) => {
+    const userId = user.id
+    setFocusedUser(userId + 1)
     setFocusedGroup(0)
-    const foundMail = users.find((mail) => (mail.id === mailId))
-    setCurrentMail(foundMail)
+    const foundUser = users.find((user) => (user.id === userId))
+    setCurrentUser(foundUser)
   }
 
   const updateFocusedGroup = (group) => {
     const groupId = group.id
     setFocusedGroup(groupId + 1)
-    setFocusedMail(0)
+    setFocusedUser(0)
     const foundGroup = groups.find((group) => (group.id === groupId))
     setCurrentGroup(foundGroup)
   }
@@ -105,7 +105,7 @@ const Mail = () => {
                 <UsersPreview
                   key={index}
                   username={user.username}
-                  onClick={() => updateFocusedMail(user)}
+                  onClick={() => updateFocusedUser(user)}
                 />
               ))}
             </div>
@@ -122,7 +122,7 @@ const Mail = () => {
           )}
         </div>
         <div className="mail-content">
-          {(focusedMail || focusedGroup) ? (
+          {(focusedUser || focusedGroup) ? (
             <div style={{ width: '100%', height: '100%' }}>
               {(focusedGroup) ? (
                 <GroupPanel
@@ -132,10 +132,10 @@ const Mail = () => {
                 />
               ) : (
                 <MailPanel
-                  emisor={currentMail.emisor}
-                  receptor={currentMail.receptor}
-                  content={currentMail.message}
-                  closeMail={setFocusedMail}
+                  emisor={currentUser.username}
+                  receptor={user.username}
+                  content={currentUser.message}
+                  closeMail={setFocusedUser}
                 />
               )}
             </div>

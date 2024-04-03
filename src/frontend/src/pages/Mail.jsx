@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react'
 import axios from 'axios'
 import { UserContext } from '../providers/UserProvider'
 import Header from '../components/Header'
-import MailPreview from '../components/MailPreview'
+import UsersPreview from '../components/UsersPreview'
 import GroupPreview from '../components/GroupPreview'
 import MailPanel from '../components/MailPanel'
 import GroupPanel from '../components/GroupPanel'
@@ -36,20 +36,18 @@ const Mail = () => {
 
   const switchMails = () => {
     if (personalMails) {
-      axios.get(`${import.meta.env.VITE_APP_API_URL}/messages/${user.username}`)
+      axios.get(`${import.meta.env.VITE_APP_API_URL}/users`)
       .then((response) => {
-        const unparsedMails = response.data
-        const parsedMails = []
-        unparsedMails.forEach((unparsedMail) => {
-          const parsedMail = {
-            id: unparsedMail.id,
-            message: unparsedMail.message,
-            receptor: unparsedMail.username_destino,
-            emisor: unparsedMail.username_origen,
+        const unparsedUsers = response.data
+        const parsedUsers = []
+        unparsedUsers.forEach((unparsedUser) => {
+          const parsedUser = {
+            id: unparsedUser.id,
+            username: unparsedUser.username,
           }
-          parsedMails.push(parsedMail)
+          parsedUsers.push(parsedUser)
         })
-        setUsers(parsedMails)
+        setUsers(parsedUsers)
       })
       .catch((error) => console.error('Error al realizar la solicitud', error))
     } else {
@@ -103,12 +101,11 @@ const Mail = () => {
           </div>
           {(personalMails) ? (
             <div>
-              {users.map((mail, index) => (
-                <MailPreview
+              {users.map((user, index) => (
+                <UsersPreview
                   key={index}
-                  emisor={mail.emisor}
-                  content={mail.message}
-                  onClick={() => updateFocusedMail(mail)}
+                  username={user.username}
+                  onClick={() => updateFocusedMail(user)}
                 />
               ))}
             </div>

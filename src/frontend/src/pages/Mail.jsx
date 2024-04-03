@@ -15,6 +15,7 @@ const Mail = () => {
   const [groups, setGroups] = useState([])
   const [focusedUser, setFocusedUser] = useState(0)
   const [currentUser, setCurrentUser] = useState({ id: 0, username: '' })
+  const [userMessages, setUserMessages] = useState([])
   const [focusedGroup, setFocusedGroup] = useState(0)
   const [currentGroup, setCurrentGroup] = useState({ id: 0, groupName: '', users: [], key: '' })
   const [groupMessages, setGroupMessages] = useState([])
@@ -133,8 +134,7 @@ const Mail = () => {
               ) : (
                 <MailPanel
                   emisor={currentUser.username}
-                  receptor={user.username}
-                  content={currentUser.message}
+                  messages={userMessages}
                   closeMail={setFocusedUser}
                 />
               )}

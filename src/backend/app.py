@@ -58,7 +58,7 @@ def get_user_key(user):
 @app.get("/messages/<string:user>")
 def get_user_messages(user):
     cur = conn.cursor()
-    cur.execute(f"SELECT * FROM Mensajes WHERE username_destino = '{user}'")
+    cur.execute(f"SELECT * FROM Mensajes WHERE username_destino = '{user}' OR username_origen = '{user}'")
     rows = cur.fetchall()
     cur.close()
     messages_json = []

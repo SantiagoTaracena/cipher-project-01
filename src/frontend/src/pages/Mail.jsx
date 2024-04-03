@@ -15,6 +15,7 @@ const Mail = () => {
   const [groups, setGroups] = useState([])
   const [focusedUser, setFocusedUser] = useState(0)
   const [currentUser, setCurrentUser] = useState({ id: 0, username: '' })
+  const [userMessages, setUserMessages] = useState([])
   const [focusedGroup, setFocusedGroup] = useState(0)
   const [currentGroup, setCurrentGroup] = useState({ id: 0, groupName: '', users: [], key: '' })
   const [groupMessages, setGroupMessages] = useState([])
@@ -41,6 +42,9 @@ const Mail = () => {
         const unparsedUsers = response.data
         const parsedUsers = []
         unparsedUsers.forEach((unparsedUser) => {
+          if (unparsedUser.username === user.username) {
+            return
+          }
           const parsedUser = {
             id: unparsedUser.id,
             username: unparsedUser.username,
@@ -96,8 +100,8 @@ const Mail = () => {
       <div className="content">
         <div className="mail-list">
           <div className="mail-category-menu">
-            <h3 onClick={() => setPersonalMails(true)}>Mails personales</h3>
-            <h3 onClick={() => setPersonalMails(false)}>Mails grupales</h3>
+            <h3 onClick={() => setPersonalMails(true)}>Usuarios</h3>
+            <h3 onClick={() => setPersonalMails(false)}>Grupos</h3>
           </div>
           {(personalMails) ? (
             <div>
@@ -133,8 +137,7 @@ const Mail = () => {
               ) : (
                 <MailPanel
                   emisor={currentUser.username}
-                  receptor={user.username}
-                  content={currentUser.message}
+                  messages={userMessages}
                   closeMail={setFocusedUser}
                 />
               )}

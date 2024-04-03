@@ -122,6 +122,21 @@ def post_user():
     cur.close()
     return jsonify({ "status": 200, "private_key": private_key })
 
+@app.post("/users/<string:user>")
+def auth_user(user):
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM Usuario")
+    rows = cur.fetchall()
+    auth = False
+    id = 0
+    username = ""
+    for row in rows:
+        if (user == row[2]):
+            auth = True
+            id = row[0]
+            username = row[2]
+    return jsonify({ "status": 200, "auth": auth, "id": id, "username": username })
+
 @app.post("/messages/<string:user>")
 def post_message(user):
     data = request.json

@@ -22,12 +22,13 @@ const SignIn = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault()
-    axios.get(`${import.meta.env.VITE_APP_API_URL}/users`)
+    axios.post(`${import.meta.env.VITE_APP_API_URL}/users/${formData.username}`, formData)
     .then((response) => {
-      const users = response.data
-      const foundUser = users.find((user) => (user.username === formData.username))
-      if (foundUser) {
-        setUser({ id: foundUser.id, username: foundUser.username })
+      const auth = response.data.auth
+      const id = response.data.id
+      const username = response.data.username
+      if (auth) {
+        setUser({ id, username })
         navigate('/mail')
       } else {
         alert('No se encontró al usuario')

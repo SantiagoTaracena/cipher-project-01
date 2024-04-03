@@ -36,7 +36,7 @@ const MailPanel = ({ emisor, closeMail }) => {
         </div>
         <div className="mail-message">
           {messages.map((message) => (
-            <div>{message.username_origen}: {message.message}</div>
+            <div className="message-box"><b>{message.username_origen}</b>: {message.message}</div>
           ))}
         </div>
       </div>

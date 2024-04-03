@@ -11,17 +11,14 @@ RUN apt-get update && apt-get install -y gcc python3-dev libpq-dev
 COPY ./requirements.txt /usr/src/app/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
+# add .env file
+COPY .env /usr/src/app/.env
+
 # add app
 COPY . /usr/src/app
 
 # expose port
 EXPOSE 5000
-
-# set environment variables
-ENV POSTGRES_USER="lzlcgkvf"
-ENV POSTGRES_PASSWORD="B5hzlmEhjgCto7j442PqK3FNPVPYVsW3"
-ENV POSTGRES_HOST="otto.db.elephantsql.com"
-ENV POSTGRES_DB="lzlcgkvf"
 
 # run the application
 CMD ["python", "app.py"]

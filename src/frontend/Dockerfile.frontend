@@ -1,0 +1,23 @@
+# Use Node.js LTS version as base image
+FROM node
+
+# Set working directory
+WORKDIR /app
+
+# Copy package.json and package-lock.json (or npm-shrinkwrap.json) if you're using npm
+COPY package.json package-lock.json /app/
+
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the application code
+COPY . .
+
+# Copy .env file
+COPY .env /app
+
+# Expose port for development server (if needed)
+EXPOSE 5173
+
+# Start development server
+CMD ["npm", "run", "dev"]

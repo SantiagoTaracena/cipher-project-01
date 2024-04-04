@@ -1,13 +1,27 @@
 # cipher-project-01
 
-## Compilación del Dockerfile para la API en Flask
+### Ejecución con Docker
 
-Para compilar el Dockerfile destinado a la API en Flask y crear una imagen Docker, sigue estos pasos:
+Para ejecutar el proyecto utilizando Docker, sigue estos pasos:
 
-1. Asegúrate de estar ubicado en la carpeta raíz del proyecto, específicamente en `src/backend`.
+1. Asegúrate de tener Docker instalado en tu máquina.
 
-2. Ejecuta el siguiente comando en tu terminal:
+2. Clona el repositorio desde GitHub:
 
 ```bash
-docker build -f Dockerfile.api -t flask-api .
+git clone https://github.com/SantiagoTaracena/cipher-project-01.git
 ```
+
+3. Navega al directorio raíz del proyecto:
+
+```bash
+cd src/
+```
+
+4. Construye y ejecuta los servicios utilizando Docker Compose:
+
+```bash
+docker-compose up --build
+```
+
+Esto construirá las imágenes y ejecutará los contenedores para la API y el frontend de la aplicación.

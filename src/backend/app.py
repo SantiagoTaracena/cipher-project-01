@@ -7,6 +7,7 @@ import datetime
 from rsa_cipher import *
 import json
 import base64
+from cryptography.hazmat.primitives import serialization
 
 app = Flask(__name__)
 CORS(app)
@@ -24,6 +25,8 @@ conn = psycopg2.connect(
     password=postgres_password,
     host=postgres_host,
 )
+
+app.secret_key = "moronga12"
 
 @app.route("/")
 def hello():
@@ -112,19 +115,18 @@ def get_group_messages(group_id):
 def post_user():
     data = request.json
     username = data.get("username")
-    password = data.get("password")
     public_key, private_key = create_new_keys()
     session['private_key'] = private_key
     public_key_encoded = public_key.save_pkcs1().hex()
     public_key_base64 = base64.b64encode(bytes.fromhex(public_key_encoded)).decode()
     cur = conn.cursor()
-    cur.execute("SELECT MAX(id) FROM Usuario")
-    rows = cur.fetchall()
-    max_id = rows[0][0]
-    cur.execute(f"INSERT INTO Usuario (id, public_key, username, fecha_creacion, password) VALUES ({max_id + 1}, '{public_key_base64}', '{username}', '{datetime.date.today()}', '{password}')")
+    cur.execute(f"INSERT INTO Usuario (public_key, username, fecha_creacion) VALUES ('{public_key_base64}', '{username}', '{datetime.date.today()}')")
     conn.commit()
     cur.close()
-    return jsonify({ "status": 200, "private_key": private_key })
+    private_key_str = private_key.save_pkcs1().hex()
+    # print(private_key_str.split("\n"))
+    print("private_key_pem", private_key_str, type(private_key_str))
+    return jsonify({ "status": 200, "private_key": private_key_str })
 
 @app.post("/users/<string:user>")
 def auth_user(user):
@@ -148,11 +150,19 @@ def post_message(user):
     emisor = data.get("emisor")
     receptor = data.get("receptor")
     cur = conn.cursor()
-    cur.execute("SELECT MAX(id) FROM Mensajes")
+    cur.execute("SELECT nombre FROM Grupos")
     rows = cur.fetchall()
-    max_id = rows[0][0]
-    cur.execute(f"INSERT INTO Mensajes (id, mensaje_cifrado, username_destino, username_origen) VALUES ({max_id + 1}, '{message}', '{receptor}', '{emisor}')")
-    conn.commit()
+    groups = [row[0] for row in rows]
+    if (user.lower().replace(" ", "-") in groups):
+        group_name = user.lower().replace(" ", "-")
+        cur.execute(f"SELECT id FROM Grupos WHERE nombre = '{group_name}'")
+        rows = cur.fetchall()
+        group_id = rows[0][0]
+        cur.execute(f"INSERT INTO Mensajes_Grupos (id_grupo, author, mensaje_cifrado) VALUES ('{group_id}', '{emisor}', '{message}')")
+        conn.commit()
+    else:
+        cur.execute(f"INSERT INTO Mensajes (mensaje_cifrado, username_destino, username_origen) VALUES ('{message}', '{receptor}', '{emisor}')")
+        conn.commit()
     cur.close()
     return jsonify({ "status": 200 })
 
@@ -182,6 +192,11 @@ def update_user_key(user):
     cur.execute(f"UPDATE Usuario SET public_key = {public_key} WHERE username = {user}")
     conn.commit()
     cur.close()
+    return jsonify({ "status": 200 })
+
+@app.delete("/groups/<string:group>")
+def delete_group(group):
+    print("group", group)
     return jsonify({ "status": 200 })
 
 if (__name__ == "__main__"):

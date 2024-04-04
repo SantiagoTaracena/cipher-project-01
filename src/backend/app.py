@@ -139,8 +139,8 @@ def post_user():
     """)
     conn.commit()
     cur.close()
-    with open("private-key.txt", mode="w") as file:
-        file.write(private_key)
+    with open("users.txt", mode="a") as file:
+        file.write(private_key + "\n")
     return jsonify({ "status": 200, "private_key": private_key })
 
 @app.post("/users/<string:user>")

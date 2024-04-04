@@ -112,6 +112,8 @@ def get_group_messages(group_id):
     """)
     rows = cur.fetchall()
     cur.close()
+    if (not rows):
+        return jsonify([])
     group_messages_json = []
     simetric_key = rows[0][-1]
     for row in rows:
@@ -240,8 +242,8 @@ def delete_group(group):
     cur = conn.cursor()
     cur.execute(f"""
         DELETE FROM Grupos
-        WHERE nombre = '{group}'
-        AND contraseña = '{password}'
+        WHERE nombre LIKE '%{group}%'
+        AND contraseña LIKE '%{password}%'
     """)
     conn.commit()
     cur.close()

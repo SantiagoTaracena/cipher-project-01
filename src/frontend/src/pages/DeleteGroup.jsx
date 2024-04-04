@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import Button from '../components/Button'
 import '../styles/delete-group.sass'
@@ -15,10 +15,15 @@ const DeleteGroup = () => {
     setFormData({ ...formData, [name]: value })
   }
 
+  const navigate = useNavigate()
+
   const handleSubmit = (event) => {
     event.preventDefault()
     axios.delete(`${import.meta.env.VITE_APP_API_URL}/groups/${formData.groupName}`, { data: formData, headers: { 'Content-Type': 'application/json' } })
-    .then((response) => alert('Grupo eliminado'))
+    .then((response) => {
+      alert('Grupo eliminado')
+      navigate('/mail')
+    })
     .catch((error) => console.error('Error al realizar la solicitud', error))
   }
 

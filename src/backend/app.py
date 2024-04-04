@@ -8,6 +8,7 @@ from rsa_cipher import *
 
 app = Flask(__name__)
 CORS(app)
+app.secret_key = "uvgcifradoproyectoprimersemestre2024"
 
 load_dotenv()
 
@@ -22,8 +23,6 @@ conn = psycopg2.connect(
     password=postgres_password,
     host=postgres_host,
 )
-
-app.secret_key = "moronga12"
 
 @app.route("/")
 def hello():
@@ -70,7 +69,6 @@ def get_user_messages(user):
     """)
     rows = cur.fetchall()
     cur.close()
-    # llave privada del usuario para descifrar
     private_key = request.args.get("privateKey")
     messages_json = []
     for row in rows:
@@ -145,6 +143,9 @@ def post_user():
 
 @app.post("/users/<string:user>")
 def auth_user(user):
+    data = request.json
+    private_key = data.get("privateKey")
+    session["private_key"] = private_key
     cur = conn.cursor()
     cur.execute("SELECT * FROM Usuario")
     rows = cur.fetchall()
@@ -156,6 +157,16 @@ def auth_user(user):
             auth = True
             id = row[0]
             username = row[2]
+
+    public_key = update_public_key(private_key)
+    cur = conn.cursor()
+    cur.execute(f"""
+        UPDATE Usuario
+        SET public_key = '{public_key}'
+        WHERE username LIKE '%{user}%'
+    """)
+    conn.commit()
+    cur.close()
     return jsonify({ "status": 200, "auth": auth, "id": id, "username": username })
 
 @app.post("/messages/<string:user>")
@@ -226,15 +237,6 @@ def post_group():
 def update_user_key(user):
     data = request.json
     private_key = data.get("privateKey")
-    public_key = update_public_key(private_key)
-    cur = conn.cursor()
-    cur.execute(f"""
-        UPDATE Usuario
-        SET public_key = '{public_key}'
-        WHERE username LIKE '%{user}%'
-    """)
-    conn.commit()
-    cur.close()
     return jsonify({ "status": 200 })
 
 @app.delete("/groups/<string:group>")

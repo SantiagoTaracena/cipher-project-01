@@ -227,15 +227,14 @@ def update_user_key(user):
     data = request.json
     private_key = data.get("privateKey")
     public_key = update_public_key(private_key)
-    print("public_key", public_key)
-    # cur = conn.cursor()
-    # cur.execute(f"""
-    #     UPDATE Usuario
-    #     SET public_key = '{public_key}'
-    #     WHERE username LIKE '%{user}%'
-    # """)
-    # conn.commit()
-    # cur.close()
+    cur = conn.cursor()
+    cur.execute(f"""
+        UPDATE Usuario
+        SET public_key = '{public_key}'
+        WHERE username LIKE '%{user}%'
+    """)
+    conn.commit()
+    cur.close()
     return jsonify({ "status": 200 })
 
 @app.delete("/groups/<string:group>")

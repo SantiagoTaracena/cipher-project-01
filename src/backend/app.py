@@ -72,15 +72,12 @@ def get_user_messages(user):
     cur.close()
     # llave privada del usuario para descifrar
     private_key = request.args.get("privateKey")
-    print("QUE PUTAS QUE PUTAS 2.0")
     messages_json = []
     for row in rows:
         message = {}
         message["id"] = row[0]
-        # ! TODO
-        # row[1] está cifrado, hay que descifrarlo
-        # decipher_message = decipher(row[1], private_key)
-        message["message"] = row[1]
+        decipher_message = decipher_direct_message(private_key, row[1])
+        message["message"] = decipher_message
         message["username_destino"] = row[2]
         message["username_origen"] = row[3]
         messages_json.append(message)
@@ -197,9 +194,10 @@ def post_message(user):
         rows = cur.fetchall()
         receptor_public_key = rows[0][0]
         cipher_message = cipher_direct_message(receptor_public_key, message)
+        cipher_message_hex = cipher_message.hex()
         cur.execute(f"""
             INSERT INTO Mensajes (mensaje_cifrado, username_destino, username_origen)
-            VALUES ('{cipher_message}', '{receptor}', '{emisor}')
+            VALUES ('{cipher_message_hex}', '{receptor}', '{emisor}')
         """)
         conn.commit()
 

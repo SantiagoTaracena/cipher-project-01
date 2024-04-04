@@ -28,6 +28,11 @@ const SignIn = () => {
       const id = response.data.id
       const username = response.data.username
       if (auth) {
+        axios.put(`${import.meta.env.VITE_APP_API_URL}/users/${formData.username}/key`, { privateKey: user.privateKey })
+        .then((response) => {
+          alert('La llave pública ha sido actualizada')
+        })
+        .catch((error) => console.error('Error al realizar la solicitud', error))
         setUser({ id, username, privateKey: formData.privateKey })
         navigate('/mail')
       } else {

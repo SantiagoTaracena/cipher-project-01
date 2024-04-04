@@ -196,7 +196,16 @@ def update_user_key(user):
 
 @app.delete("/groups/<string:group>")
 def delete_group(group):
-    print("group", group)
+    group = group.lower().replace(" ", "-")
+    password = request.json["password"]
+    cur = conn.cursor()
+    cur.execute(f"""
+        DELETE FROM Grupos
+        WHERE nombre = '{group}'
+        AND contraseña = '{password}'
+    """)
+    conn.commit()
+    cur.close()
     return jsonify({ "status": 200 })
 
 if (__name__ == "__main__"):

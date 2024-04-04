@@ -1,14 +1,26 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
+import axios from 'axios'
 import Button from '../components/Button'
 import '../styles/delete-group.sass'
 
 const DeleteGroup = () => {
+  const [formData, setFormData] = useState({
+    groupName: '',
+    password: '',
+  })
 
-  const formData = {}
+  const handleChange = (event) => {
+    const { name, value } = event.target
+    setFormData({ ...formData, [name]: value })
+  }
 
-  const handleSubmit = () => 0
-  const handleChange = () => 0
+  const handleSubmit = (event) => {
+    event.preventDefault()
+    axios.delete(`${import.meta.env.VITE_APP_API_URL}/groups/${formData.groupName}`, { data: formData, headers: { 'Content-Type': 'application/json' } })
+    .then((response) => alert('Grupo eliminado'))
+    .catch((error) => console.error('Error al realizar la solicitud', error))
+  }
 
   return (
     <div className="delete-group-container">

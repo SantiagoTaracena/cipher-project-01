@@ -14,7 +14,7 @@ def create_new_keys():
     return public_key_base64, private_key_base64
 
 def update_public_key(private_key_base64):
-    private_key_bytes = base64.b64decode(private_key_base64.encode())
+    private_key_bytes = base64.b64decode(private_key_base64)
     private_key = rsa.PrivateKey.load_pkcs1(private_key_bytes)
     public_key = rsa.PublicKey(private_key.n, private_key.e)
     public_key_base64 = base64.b64encode(public_key.save_pkcs1()).decode()

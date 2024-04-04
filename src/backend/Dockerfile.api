@@ -20,4 +20,6 @@ COPY . .
 EXPOSE 5000
 
 # Define el comando para ejecutar la aplicación cuando se inicie el contenedor
-CMD ["python", "app.py"]
+ENTRYPOINT ["python"]
+
+CMD ["app.py"]

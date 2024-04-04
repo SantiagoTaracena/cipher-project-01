@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.api
+    container_name: email-app-api-
+    image: email-app-api-flasky:latest
+    ports:
+      - "5001:5000"  # Expose the API container's port 5000
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.frontend
+    container_name: email-app-flasky
+    image: email-app-flasky:latest
+    ports:
+      - "5173:5173"  # Expose the frontend container's port 5173

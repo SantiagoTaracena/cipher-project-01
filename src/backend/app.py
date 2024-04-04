@@ -5,8 +5,6 @@ import os
 import psycopg2
 import datetime
 from rsa_cipher import *
-import json
-import base64
 
 app = Flask(__name__)
 CORS(app)
@@ -134,21 +132,14 @@ def post_user():
     username = data.get("username")
     public_key, private_key = create_new_keys()
     session['private_key'] = private_key
-    public_key_encoded = public_key.save_pkcs1().hex()
-    public_key_base64 = base64.b64encode(bytes.fromhex(public_key_encoded)).decode()
     cur = conn.cursor()
     cur.execute(f"""
         INSERT INTO Usuario (public_key, username, fecha_creacion)
-        VALUES ('{public_key_base64}', '{username}', '{datetime.date.today()}')
+        VALUES ('{public_key}', '{username}', '{datetime.date.today()}')
     """)
     conn.commit()
     cur.close()
-    # ! TODO
-    # Tenemos que enviar bien la llave privada al usuario
-    # para que la pueda guardar y usarla al loggearse
-    private_key_str = private_key.save_pkcs1().hex()
-    print("private_key_pem", private_key_str, type(private_key_str))
-    return jsonify({ "status": 200, "private_key": private_key_str })
+    return jsonify({ "status": 200, "private_key": 'key'})
 
 @app.post("/users/<string:user>")
 def auth_user(user):
@@ -267,4 +258,4 @@ def delete_group(group):
     return jsonify({ "status": 200 })
 
 if (__name__ == "__main__"):
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0")

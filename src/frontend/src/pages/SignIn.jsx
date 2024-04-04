@@ -8,7 +8,7 @@ import '../styles/sign-up.sass'
 const SignIn = () => {
   const [formData, setFormData] = useState({
     username: '',
-    password: '',
+    privateKey: '',
   })
 
   const handleChange = (event) => {
@@ -28,7 +28,7 @@ const SignIn = () => {
       const id = response.data.id
       const username = response.data.username
       if (auth) {
-        setUser({ id, username })
+        setUser({ id, username, privateKey: formData.privateKey })
         navigate('/mail')
       } else {
         alert('No se encontró al usuario')
@@ -57,12 +57,12 @@ const SignIn = () => {
             />
           </div>
           <div className="sign-up-input-entry">
-            <label htmlFor="password">Contraseña:</label>
+            <label htmlFor="privateKey">Llave privada:</label>
             <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
+              type="privateKey"
+              id="privateKey"
+              name="privateKey"
+              value={formData.privateKey}
               onChange={handleChange}
               required
             />

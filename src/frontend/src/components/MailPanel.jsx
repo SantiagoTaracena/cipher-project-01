@@ -10,7 +10,7 @@ const MailPanel = ({ emisor, closeMail }) => {
   const { user, setUser } = useContext(UserContext)
 
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_APP_API_URL}/messages/${user.username}`)
+    axios.get(`${import.meta.env.VITE_APP_API_URL}/messages/${user.username}`, { params: { privateKey: user.privateKey } })
     .then((response) => {
       const fetchedMessages = response.data
       const messagesToShow = []

@@ -190,20 +190,16 @@ def post_message(user):
         conn.commit()
 
     else:
-        # Llave pública de receptor
         cur.execute(f"""
             SELECT public_key FROM Usuario
             WHERE username LIKE '%{receptor}%'
         """)
         rows = cur.fetchall()
         receptor_public_key = rows[0][0]
-        # Cifrar con la llave pública
-        # ! TODO
-        cipher_message = ""
-        # Cambiar 'message' en el query a 'cipher_message' que sea el msj cifrado
+        cipher_message = cipher_direct_message(receptor_public_key, message)
         cur.execute(f"""
             INSERT INTO Mensajes (mensaje_cifrado, username_destino, username_origen)
-            VALUES ('{message}', '{receptor}', '{emisor}')
+            VALUES ('{cipher_message}', '{receptor}', '{emisor}')
         """)
         conn.commit()
 

@@ -139,7 +139,7 @@ def post_user():
     """)
     conn.commit()
     cur.close()
-    return jsonify({ "status": 200, "private_key": 'key'})
+    return jsonify({ "status": 200, "private_key": private_key})
 
 @app.post("/users/<string:user>")
 def auth_user(user):

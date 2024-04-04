@@ -1,6 +1,7 @@
 Flask
 flask-appbuilder
 connexion
+cryptography
 flask-caching
 flask-jwt-extended
 Flask-Cors

@@ -1,0 +1,54 @@
+import React from 'react'
+import { Link } from 'react-router-dom'
+import Button from '../components/Button'
+import '../styles/delete-group.sass'
+
+const DeleteGroup = () => {
+
+  const formData = {}
+
+  const handleSubmit = () => 0
+  const handleChange = () => 0
+
+  return (
+    <div className="delete-group-container">
+      <div className="delete-group-card">
+        <h1>Eliminar Grupo</h1>
+        <h3>Elimina un grupo ingresando su nombre y su contraseña</h3>
+        <form
+          className="sign-up-form"
+          onSubmit={handleSubmit}
+        >
+          <div className="sign-up-input-entry">
+            <label htmlFor="group-name">Nombre del grupo:</label>
+            <input
+              type="text"
+              id="group-name"
+              name="groupName"
+              value={formData.groupName}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="sign-up-input-entry">
+            <label htmlFor="password">Contraseña:</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="sign-up-buttons">
+            <Button buttonText="Eliminar grupo" type="submit" onClick={handleSubmit} />
+            <Link to="/mail"><Button buttonText="Volver" type="button" /></Link>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+export default DeleteGroup

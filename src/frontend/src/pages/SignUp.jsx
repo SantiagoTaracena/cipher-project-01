@@ -7,7 +7,6 @@ import '../styles/sign-up.sass'
 const SignUp = () => {
   const [formData, setFormData] = useState({
     username: '',
-    password: '',
   })
 
   const handleChange = (event) => {
@@ -40,17 +39,6 @@ const SignUp = () => {
               id="username"
               name="username"
               value={formData.username}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="sign-up-input-entry">
-            <label htmlFor="password">Contraseña:</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
               onChange={handleChange}
               required
             />

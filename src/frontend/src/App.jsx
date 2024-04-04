@@ -5,6 +5,7 @@ import SignUp from './pages/SignUp'
 import SignIn from './pages/SignIn'
 import Mail from './pages/Mail'
 import Group from './pages/Group'
+import DeleteGroup from './pages/DeleteGroup'
 
 const router = createBrowserRouter([
   {
@@ -26,6 +27,10 @@ const router = createBrowserRouter([
   {
     path: '/group',
     element: <Group />,
+  },
+  {
+    path: '/delete-group',
+    element: <DeleteGroup />,
   },
 ])
 

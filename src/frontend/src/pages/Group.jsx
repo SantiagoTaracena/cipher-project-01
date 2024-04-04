@@ -76,6 +76,7 @@ const Group = () => {
           <div className="sign-up-buttons">
             <Button buttonText="Crear grupo" type="submit" onClick={handleSubmit} />
             <Link to="/mail"><Button buttonText="Volver" type="button" /></Link>
+            <Link to="/delete-group"><Button buttonText="Borrar grupo" type="button" /></Link>
           </div>
         </form>
       </div>

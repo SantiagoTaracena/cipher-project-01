@@ -76,7 +76,10 @@ def get_user_messages(user):
     for row in rows:
         message = {}
         message["id"] = row[0]
-        decipher_message = decipher_direct_message(private_key, row[1])
+        try:
+            decipher_message = decipher_direct_message(private_key, row[1])
+        except:
+            continue
         message["message"] = decipher_message
         message["username_destino"] = row[2]
         message["username_origen"] = row[3]

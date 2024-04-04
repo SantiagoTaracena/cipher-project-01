@@ -14,16 +14,12 @@ const MailPanel = ({ emisor, closeMail }) => {
     .then((response) => {
       const fetchedMessages = response.data
       const messagesToShow = []
-      console.log(fetchedMessages, emisor, user.username)
       fetchedMessages.forEach((fetchedMessage) => {
         const receivedMessage = ((fetchedMessage.username_origen === emisor) && (fetchedMessage.username_destino === user.username))
-        const sentMessage = ((fetchedMessage.username_origen === user.username) && (fetchedMessage.username_destino === emisor))
-        console.log(receivedMessage, sentMessage)
-        if (receivedMessage || sentMessage) {
+        if (receivedMessage) {
           messagesToShow.push(fetchedMessage)
         }
       })
-      console.log(messagesToShow)
       setMessages(messagesToShow)
     })
   }, [emisor])

@@ -22,4 +22,5 @@ EXPOSE 5000
 # Define el comando para ejecutar la aplicación cuando se inicie el contenedor
 ENTRYPOINT ["python"]
 
+# Comando para correr app.py
 CMD ["app.py"]

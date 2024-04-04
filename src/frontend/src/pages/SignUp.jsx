@@ -19,7 +19,7 @@ const SignUp = () => {
   const handleSubmit = (event) => {
     event.preventDefault()
     axios.post(`${import.meta.env.VITE_APP_API_URL}/users`, formData)
-    .then((response) => alert(`Usuario creado con llave privada ${response.data.status}`))
+    .then((response) => alert(`Usuario creado con llave privada en ./src/backend/private-key.txt`))
     .catch((error) => console.error('Error al realizar la solicitud', error))
     navigate('/')
   }

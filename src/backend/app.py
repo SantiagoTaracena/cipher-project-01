@@ -72,6 +72,7 @@ def get_user_messages(user):
     cur.close()
     # llave privada del usuario para descifrar
     private_key = request.args.get("privateKey")
+    print("QUE PUTAS QUE PUTAS 2.0")
     messages_json = []
     for row in rows:
         message = {}
@@ -139,7 +140,9 @@ def post_user():
     """)
     conn.commit()
     cur.close()
-    return jsonify({ "status": 200, "private_key": private_key})
+    with open("private-key.txt", mode="w") as file:
+        file.write(private_key)
+    return jsonify({ "status": 200, "private_key": private_key })
 
 @app.post("/users/<string:user>")
 def auth_user(user):

@@ -111,16 +111,13 @@ def get_group_messages(group_id):
     cur.close()
     group_messages_json = []
     simetric_key = rows[0][-1]
-    print("simetric_key", simetric_key)
     for row in rows:
         group_message = {}
         group_message["id"] = row[0]
         group_message["id_group"] = row[1]
         group_message["author"] = row[2]
-        # ! TODO
-        # row[3] es un mensaje cifrado, hay que descifrarlo
-        # decipher_message = decipher(row[3], simetric_key)
-        group_message["mensaje"] = row[3] # Reemplazar por decipher_message
+        decipher_message = decipher_group_message(simetric_key, row[3])
+        group_message["mensaje"] = decipher_message
         group_messages_json.append(group_message)
     return jsonify(group_messages_json)
 
@@ -176,13 +173,10 @@ def post_message(user):
         rows = cur.fetchall()
         group_id = rows[0][0]
         simetric_key = rows[0][-1]
-        # ! TODO
-        # por ahora message está descifrado, hay que cifrarlo
-        # cipher_message = cipher(message, simetric_key)
-        cipher_message = ""
+        cipher_message = cipher_group_message(simetric_key, message)
         cur.execute(f"""
             INSERT INTO Mensajes_Grupos (id_grupo, author, mensaje_cifrado)
-            VALUES ('{group_id}', '{emisor}', '{message}')
+            VALUES ('{group_id}', '{emisor}', '{cipher_message}')
         """)
         conn.commit()
 
@@ -194,10 +188,9 @@ def post_message(user):
         rows = cur.fetchall()
         receptor_public_key = rows[0][0]
         cipher_message = cipher_direct_message(receptor_public_key, message)
-        cipher_message_hex = cipher_message.hex()
         cur.execute(f"""
             INSERT INTO Mensajes (mensaje_cifrado, username_destino, username_origen)
-            VALUES ('{cipher_message_hex}', '{receptor}', '{emisor}')
+            VALUES ('{cipher_message}', '{receptor}', '{emisor}')
         """)
         conn.commit()
 
@@ -215,10 +208,7 @@ def post_group():
     for member in members:
         members_formatted_array += f"\"{member}\", "
     members_formatted_array = f"{members_formatted_array[:-2]}" + "}"
-    # ! TODO
-    # generar la clave simetrica del grupo
-    # simetric_key = generate_simetric_key()
-    simetric_key = ""
+    simetric_key = generate_group_key()
     cur.execute(f"""
         INSERT INTO Grupos (nombre, usuarios, contraseña, clave_simetrica)
         VALUES ('{name}', '{members_formatted_array}', '{password}', '{simetric_key}')

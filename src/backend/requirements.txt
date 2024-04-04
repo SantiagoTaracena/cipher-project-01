@@ -1,6 +1,5 @@
 Flask
 flask-appbuilder
-apache-airflow
 connexion
 flask-caching
 flask-jwt-extended
@@ -8,3 +7,8 @@ Flask-Cors
 psycopg2-binary
 python-dotenv
 rsa
+Jinja2
+Flask-RESTful
+MarkupSafe
+itsdangerous
+Werkzeug

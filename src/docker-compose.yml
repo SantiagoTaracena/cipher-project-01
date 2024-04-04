@@ -8,7 +8,7 @@ services:
     container_name: email-app-api-
     image: email-app-api-flasky:latest
     ports:
-      - "5000:5000"  # Expose the API container's port 4000
+      - "5000:5000"  # Expose the API container's port 5000
 
   frontend:
     build:

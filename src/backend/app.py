@@ -8,15 +8,17 @@ from rsa_cipher import *
 
 app = Flask(__name__)
 CORS(app)
-app.secret_key = "uvgcifradoproyectoprimersemestre2024"
-
 load_dotenv()
 
+app.secret_key = os.getenv("SECRET_KEY")
+
+# Load database connection parameters from environment
 postgres_user = os.getenv("POSTGRES_USER")
 postgres_password = os.getenv("POSTGRES_PASSWORD")
 postgres_host = os.getenv("POSTGRES_HOST")
 postgres_db = os.getenv("POSTGRES_DB")
 
+# Connect to PostgreSQL
 conn = psycopg2.connect(
     dbname=postgres_db,
     user=postgres_user,
@@ -29,145 +31,155 @@ def hello():
     return "Hello world!"
 
 @app.get("/users")
-def get_usersss():
+def get_users():
     cur = conn.cursor()
-    cur.execute("SELECT * FROM Usuario")
+    cur.execute("SELECT id, username FROM Usuario")
     rows = cur.fetchall()
     cur.close()
-    users_json = []
-    for row in rows:
-        user = {}
-        user["id"] = row[0]
-        user["username"] = row[2]
-        users_json.append(user)
+    
+    users_json = [{"id": row[0], "username": row[1]} for row in rows]
     return jsonify(users_json)
 
 @app.get("/users/<string:user>/key")
 def get_user_key(user):
     cur = conn.cursor()
-    cur.execute(f"""
+    cur.execute("""
         SELECT username, public_key FROM Usuario
-        WHERE username LIKE '%{user}%'
-    """)
+        WHERE username ILIKE %s
+    """, (f'%{user}%',))
     rows = cur.fetchall()
     cur.close()
-    keys_json = []
-    for row in rows:
-        key = {}
-        key["username"] = row[0]
-        key["public_key"] = row[1]
-        keys_json.append(key)
+    
+    keys_json = [{"username": row[0], "public_key": row[1]} for row in rows]
     return jsonify(keys_json)
 
 @app.get("/messages/<string:user>")
 def get_user_messages(user):
+    private_key = request.args.get("privateKey")
+    if not private_key:
+        return jsonify({"status": "error", "message": "Private key is required"}), 400
+    
     cur = conn.cursor()
-    cur.execute(f"""
-        SELECT * FROM Mensajes
-        WHERE username_destino LIKE '%{user}%'
-        OR username_origen LIKE '%{user}%'
-    """)
+    cur.execute("""
+        SELECT id, mensaje_cifrado, username_destino, username_origen FROM Mensajes
+        WHERE username_destino ILIKE %s OR username_origen ILIKE %s
+    """, (f'%{user}%', f'%{user}%',))
     rows = cur.fetchall()
     cur.close()
-    private_key = request.args.get("privateKey")
+    
     messages_json = []
     for row in rows:
-        message = {}
-        message["id"] = row[0]
         try:
             decipher_message = decipher_direct_message(private_key, row[1])
-        except:
+            message = {
+                "id": row[0],
+                "message": decipher_message,
+                "username_destino": row[2],
+                "username_origen": row[3]
+            }
+            messages_json.append(message)
+        except Exception as e:
             continue
-        message["message"] = decipher_message
-        message["username_destino"] = row[2]
-        message["username_origen"] = row[3]
-        messages_json.append(message)
+    
     return jsonify(messages_json)
 
 @app.get("/groups")
 def get_groups():
     cur = conn.cursor()
-    cur.execute("SELECT * FROM Grupos")
+    cur.execute("SELECT id, nombre, usuarios, clave_simetrica FROM Grupos")
     rows = cur.fetchall()
     cur.close()
-    groups_json = []
-    for row in rows:
-        group = {}
-        group["id"] = row[0]
-        group["nombre"] = row[1]
-        group["usuarios"] = row[2]
-        group["clave_simetrica"] = row[4]
-        groups_json.append(group)
+    
+    groups_json = [{"id": row[0], "nombre": row[1], "usuarios": row[2], "clave_simetrica": row[3]} for row in rows]
     return jsonify(groups_json)
 
 @app.get("/messages/groups/<int:group_id>")
 def get_group_messages(group_id):
     cur = conn.cursor()
-    cur.execute(f"""
-        SELECT mg.*, g.clave_simetrica FROM Mensajes_Grupos mg
+    cur.execute("""
+        SELECT mg.id, mg.id_grupo, mg.author, mg.mensaje_cifrado, g.clave_simetrica 
+        FROM Mensajes_Grupos mg
         JOIN Grupos g ON mg.id_grupo = g.id
-        WHERE mg.id_grupo = {group_id}
-    """)
+        WHERE mg.id_grupo = %s
+    """, (group_id,))
     rows = cur.fetchall()
     cur.close()
-    if (not rows):
+    
+    if not rows:
         return jsonify([])
-    group_messages_json = []
+    
     simetric_key = rows[0][-1]
+    group_messages_json = []
     for row in rows:
-        group_message = {}
-        group_message["id"] = row[0]
-        group_message["id_group"] = row[1]
-        group_message["author"] = row[2]
-        decipher_message = decipher_group_message(simetric_key, row[3])
-        group_message["mensaje"] = decipher_message
-        group_messages_json.append(group_message)
+        try:
+            decipher_message = decipher_group_message(simetric_key, row[3])
+            group_message = {
+                "id": row[0],
+                "id_group": row[1],
+                "author": row[2],
+                "mensaje": decipher_message
+            }
+            group_messages_json.append(group_message)
+        except Exception as e:
+            continue
+    
     return jsonify(group_messages_json)
 
 @app.post("/users")
 def post_user():
     data = request.json
     username = data.get("username")
+    if not username:
+        return jsonify({"status": "error", "message": "Username is required"}), 400
+    
     public_key, private_key = create_new_keys()
     session['private_key'] = private_key
+    
     cur = conn.cursor()
-    cur.execute(f"""
+    cur.execute("""
         INSERT INTO Usuario (public_key, username, fecha_creacion)
-        VALUES ('{public_key}', '{username}', '{datetime.date.today()}')
-    """)
+        VALUES (%s, %s, %s)
+    """, (public_key, username, datetime.date.today()))
     conn.commit()
     cur.close()
+    
     with open("users.txt", mode="a") as file:
         file.write(f"{username}: {private_key}\n")
-    return jsonify({ "status": 200, "private_key": private_key })
+    
+    return jsonify({"status": 200, "private_key": private_key})
 
 @app.post("/users/<string:user>")
 def auth_user(user):
     data = request.json
     private_key = data.get("privateKey")
+    if not private_key:
+        return jsonify({"status": "error", "message": "Private key is required"}), 400
+    
     session["private_key"] = private_key
+    
     cur = conn.cursor()
-    cur.execute("SELECT * FROM Usuario")
+    cur.execute("SELECT id, username FROM Usuario WHERE username ILIKE %s", (f'%{user}%',))
     rows = cur.fetchall()
-    auth = False
-    id = 0
-    username = ""
-    for row in rows:
-        if (user == row[2]):
-            auth = True
-            id = row[0]
-            username = row[2]
-
-    public_key = update_public_key(private_key)
-    cur = conn.cursor()
-    cur.execute(f"""
-        UPDATE Usuario
-        SET public_key = '{public_key}'
-        WHERE username LIKE '%{user}%'
-    """)
-    conn.commit()
     cur.close()
-    return jsonify({ "status": 200, "auth": auth, "id": id, "username": username })
+    
+    if not rows:
+        return jsonify({"status": "error", "message": "User not found"}), 404
+    
+    user_data = rows[0]
+    auth = user.lower() == user_data[1].lower()
+    
+    if auth:
+        public_key = update_public_key(private_key)
+        cur = conn.cursor()
+        cur.execute("""
+            UPDATE Usuario
+            SET public_key = %s
+            WHERE username = %s
+        """, (public_key, user_data[1]))
+        conn.commit()
+        cur.close()
+    
+    return jsonify({"status": 200, "auth": auth, "id": user_data[0], "username": user_data[1]})
 
 @app.post("/messages/<string:user>")
 def post_message(user):
@@ -175,83 +187,116 @@ def post_message(user):
     message = data.get("message")
     emisor = data.get("emisor")
     receptor = data.get("receptor")
+    
+    if not all([message, emisor, receptor]):
+        return jsonify({"status": "error", "message": "All fields are required"}), 400
+    
     cur = conn.cursor()
     cur.execute("SELECT nombre FROM Grupos")
-    rows = cur.fetchall()
-    groups = [row[0] for row in rows]
-
-    if (user.lower().replace(" ", "-") in groups):
-        group_name = user.lower().replace(" ", "-")
-        cur.execute(f"""
+    groups = [row[0].lower().replace(" ", "-") for row in cur.fetchall()]
+    
+    if user.lower().replace(" ", "-") in groups:
+        cur.execute("""
             SELECT id, clave_simetrica FROM Grupos
-            WHERE nombre LIKE '%{group_name}%'
-        """)
-        rows = cur.fetchall()
-        group_id = rows[0][0]
-        simetric_key = rows[0][-1]
-        cipher_message = cipher_group_message(simetric_key, message)
-        cur.execute(f"""
-            INSERT INTO Mensajes_Grupos (id_grupo, author, mensaje_cifrado)
-            VALUES ('{group_id}', '{emisor}', '{cipher_message}')
-        """)
-        conn.commit()
-
+            WHERE nombre ILIKE %s
+        """, (f'%{user.lower().replace(" ", "-")}%'))
+        group = cur.fetchone()
+        if group:
+            group_id = group[0]
+            simetric_key = group[1]
+            cipher_message = cipher_group_message(simetric_key, message)
+            cur.execute("""
+                INSERT INTO Mensajes_Grupos (id_grupo, author, mensaje_cifrado)
+                VALUES (%s, %s, %s)
+            """, (group_id, emisor, cipher_message))
+            conn.commit()
     else:
-        cur.execute(f"""
+        cur.execute("""
             SELECT public_key FROM Usuario
-            WHERE username LIKE '%{receptor}%'
-        """)
-        rows = cur.fetchall()
-        receptor_public_key = rows[0][0]
+            WHERE username ILIKE %s
+        """, (f'%{receptor}%',))
+        receptor_public_key = cur.fetchone()[0]
         cipher_message = cipher_direct_message(receptor_public_key, message)
-        cur.execute(f"""
+        cur.execute("""
             INSERT INTO Mensajes (mensaje_cifrado, username_destino, username_origen)
-            VALUES ('{cipher_message}', '{receptor}', '{emisor}')
-        """)
+            VALUES (%s, %s, %s)
+        """, (cipher_message, receptor, emisor))
         conn.commit()
-
+    
     cur.close()
-    return jsonify({ "status": 200 })
+    return jsonify({"status": 200})
 
 @app.post("/groups")
 def post_group():
     data = request.json
-    name = data.get("groupName").lower().replace(" ", "-")
+    name = data.get("groupName")
     members = data.get("groupMembers")
     password = data.get("password")
-    cur = conn.cursor()
-    members_formatted_array = "{"
-    for member in members:
-        members_formatted_array += f"\"{member}\", "
-    members_formatted_array = f"{members_formatted_array[:-2]}" + "}"
+    
+    if not all([name, members, password]):
+        return jsonify({"status": "error", "message": "All fields are required"}), 400
+    
+    members_formatted_array = '{' + ', '.join(f'"{member}"' for member in members) + '}'
     simetric_key = generate_group_key()
-    cur.execute(f"""
+    
+    cur = conn.cursor()
+    cur.execute("""
         INSERT INTO Grupos (nombre, usuarios, contraseña, clave_simetrica)
-        VALUES ('{name}', '{members_formatted_array}', '{password}', '{simetric_key}')
-    """)
+        VALUES (%s, %s, %s, %s)
+    """, (name.lower().replace(" ", "-"), members_formatted_array, password, simetric_key))
     conn.commit()
     cur.close()
-    return jsonify({ "status": 200 })
+    
+    return jsonify({"status": 200})
 
 @app.put("/users/<string:user>/key")
 def update_user_key(user):
     data = request.json
     private_key = data.get("privateKey")
-    return jsonify({ "status": 200 })
+    if not private_key:
+        return jsonify({"status": "error", "message": "Private key is required"}), 400
+    
+    public_key = update_public_key(private_key)
+    cur = conn.cursor()
+    cur.execute("""
+        UPDATE Usuario
+        SET public_key = %s
+        WHERE username ILIKE %s
+    """, (public_key, f'%{user}%'))
+    conn.commit()
+    cur.close()
+    
+    return jsonify({"status": 200})
 
 @app.delete("/groups/<string:group>")
 def delete_group(group):
-    group = group.lower().replace(" ", "-")
-    password = request.json["password"]
+    password = request.json.get("password")
+    if not password:
+        return jsonify({"status": "error", "message": "Password is required"}), 400
+    
     cur = conn.cursor()
-    cur.execute(f"""
-        DELETE FROM Grupos
-        WHERE nombre LIKE '%{group}%'
-        AND contraseña LIKE '%{password}%'
-    """)
+    cur.execute("""
+        SELECT contraseña FROM Grupos
+        WHERE nombre ILIKE %s
+    """, (f'%{group.lower().replace(" ", "-")}%'))
+    group_password = cur.fetchone()
+    if not group_password or password != group_password[0]:
+        return jsonify({"status": "error", "message": "Incorrect password"}), 403
+    
+    cur.execute("DELETE FROM Grupos WHERE nombre ILIKE %s", (f'%{group.lower().replace(" ", "-")}%'))
     conn.commit()
     cur.close()
-    return jsonify({ "status": 200 })
+    
+    return jsonify({"status": 200})
 
-if (__name__ == "__main__"):
-    app.run(debug=True, host="0.0.0.0")
+@app.delete("/users/<string:user>")
+def delete_user(user):
+    cur = conn.cursor()
+    cur.execute("DELETE FROM Usuario WHERE username ILIKE %s", (f'%{user}%',))
+    conn.commit()
+    cur.close()
+    
+    return jsonify({"status": 200})
+
+if __name__ == "__main__":
+    app.run(debug=True)

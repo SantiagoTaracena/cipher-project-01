@@ -23,13 +23,24 @@ const Group = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault()
+    
+    const token = localStorage.getItem('token')
     const groupMembers = [user.username, ...formData.members.split(', ')]
     const data = { groupName: formData.groupName, groupMembers, password: formData.password }
-    axios.post(`${import.meta.env.VITE_APP_API_URL}/groups`, data)
-    .then((response) => alert('Grupo enviado'))
+    
+    axios.post(`${import.meta.env.VITE_APP_API_URL}/groups`, data, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    .then((response) => {
+      alert('Grupo creado con éxito')
+      navigate('/mail')
+    })
     .catch((error) => console.error('Error al realizar la solicitud', error))
-    navigate('/mail')
   }
+  
 
   return (
     <main className="container">

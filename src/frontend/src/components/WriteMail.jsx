@@ -5,27 +5,31 @@ import Button from '../components/Button'
 import '../styles/write-mail.sass'
 
 const WriteMail = () => {
-  const [receptor, setReceptor] = useState()
-  const [message, setMessage] = useState()
+  const [receptor, setReceptor] = useState('')
+  const [message, setMessage] = useState('')
 
   const handleReceptorChange = (event) => {
-    const { name, value } = event.target
-    setReceptor(value)
+    setReceptor(event.target.value)
   }
 
   const handleMessageChange = (event) => {
-    const { name, value } = event.target
-    setMessage(value)
+    setMessage(event.target.value)
   }
 
-  const { user, setUser } = useContext(UserContext)
+  const { user } = useContext(UserContext)
 
   const handleSubmit = (event) => {
     event.preventDefault()
     const formData = { emisor: user.username, receptor, message }
-    axios.post(`${import.meta.env.VITE_APP_API_URL}/messages/${receptor}`, formData)
-    .then((response) => alert('Mensaje enviado', response.data[0]))
-    .catch((error) => console.error('Error al realizar la solicitud', error))
+    const token = localStorage.getItem('token')
+    axios.post(`${import.meta.env.VITE_APP_API_URL}/messages/${receptor}`, formData, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    })
+      .then((response) => alert('Mensaje enviado', response.data[0]))
+      .catch((error) => console.error('Error al realizar la solicitud', error))
   }
 
   return (
@@ -51,11 +55,7 @@ const WriteMail = () => {
         />
       </div>
       <div className="send-button-container">
-        <Button
-          buttonText="Enviar Correo"
-          type="button"
-          onClick={handleSubmit}
-        />
+        <Button buttonText="Enviar Correo" type="button" onClick={handleSubmit} />
       </div>
     </div>
   )

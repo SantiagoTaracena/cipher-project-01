@@ -36,45 +36,48 @@ const Mail = () => {
   }
 
   const switchMails = () => {
+    const token = localStorage.getItem('token')
+  
     if (personalMails) {
-      axios.get(`${import.meta.env.VITE_APP_API_URL}/users`)
+      axios.get(`${import.meta.env.VITE_APP_API_URL}/users`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
       .then((response) => {
         const unparsedUsers = response.data
-        const parsedUsers = []
-        unparsedUsers.forEach((unparsedUser) => {
-          if (unparsedUser.username === user.username) {
-            return
-          }
-          const parsedUser = {
+        const parsedUsers = unparsedUsers.filter(unparsedUser => unparsedUser.username !== user.username)
+          .map(unparsedUser => ({
             id: unparsedUser.id,
-            username: unparsedUser.username,
-          }
-          parsedUsers.push(parsedUser)
-        })
+            username: unparsedUser.username
+          }))
+        
         setUsers(parsedUsers)
       })
       .catch((error) => console.error('Error al realizar la solicitud', error))
     } else {
-      axios.get(`${import.meta.env.VITE_APP_API_URL}/groups`)
+      axios.get(`${import.meta.env.VITE_APP_API_URL}/groups`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
       .then((response) => {
         const groups = response.data
-        const groupsToShow = []
-        groups.forEach((group) => {
-          if (group.usuarios.includes(user.username)) {
-            const parsedGroup = {
-              id: group.id,
-              groupName: capitalizeAndReplace(group.nombre),
-              users: group.usuarios,
-              key: group.clave_simetrica,
-            }
-            groupsToShow.push(parsedGroup)
-          }
-        })
+        const groupsToShow = groups
+          .filter(group => group.usuarios.includes(user.username))
+          .map(group => ({
+            id: group.id,
+            groupName: capitalizeAndReplace(group.nombre),
+            users: group.usuarios,
+            key: group.clave_simetrica,
+          }))
+        
         setGroups(groupsToShow)
       })
       .catch((error) => console.error('Error al realizar la solicitud', error))
     }
   }
+  
 
   const updateFocusedUser = (user) => {
     const userId = user.id

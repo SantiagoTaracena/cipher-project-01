@@ -19,7 +19,15 @@ const DeleteGroup = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault()
-    axios.delete(`${import.meta.env.VITE_APP_API_URL}/groups/${formData.groupName}`, { data: formData, headers: { 'Content-Type': 'application/json' } })
+    const token = localStorage.getItem('token')
+  
+    axios.delete(`${import.meta.env.VITE_APP_API_URL}/groups/${formData.groupName}`, {
+      data: formData,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    })
     .then((response) => {
       alert('Grupo eliminado')
       navigate('/mail')

@@ -18,38 +18,40 @@ const SignIn = () => {
 
   const navigate = useNavigate()
 
-  const { user, setUser } = useContext(UserContext)
+  const { setUser } = useContext(UserContext)
 
   const handleSubmit = (event) => {
     event.preventDefault()
     axios.post(`${import.meta.env.VITE_APP_API_URL}/users/${formData.username}`, formData)
-    .then((response) => {
-      const auth = response.data.auth
-      const id = response.data.id
-      const username = response.data.username
-      if (auth) {
-        axios.put(`${import.meta.env.VITE_APP_API_URL}/users/${formData.username}/key`, { privateKey: user.privateKey })
-        .then((response) => {
-          alert('La llave pública ha sido actualizada')
-        })
-        .catch((error) => console.error('Error al realizar la solicitud', error))
-        setUser({ id, username, privateKey: formData.privateKey })
-        navigate('/mail')
-      } else {
-        alert('No se encontró al usuario')
-      }
-    })
-    .catch((error) => console.error('Error al realizar la solicitud', error))
+      .then((response) => {
+        const { auth, id, username, token } = response.data
+        if (auth) {
+          localStorage.setItem('token', token)
+          axios.put(`${import.meta.env.VITE_APP_API_URL}/users/${formData.username}/key`, { privateKey: formData.privateKey }, {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            }
+          })
+            .then(() => {
+              alert('La llave pública ha sido actualizada')
+            })
+            .catch((error) => console.error('Error al realizar la solicitud', error))
+
+          setUser({ id, username, privateKey: formData.privateKey })
+          navigate('/mail')
+        } else {
+          alert('No se encontró al usuario')
+        }
+      })
+      .catch((error) => console.error('Error al realizar la solicitud', error))
   }
 
   return (
     <main className="sign-up-container">
       <div className="sign-up-card">
         <h1>Inicio de Sesión</h1>
-        <form
-          className="sign-up-form"
-          onSubmit={handleSubmit}
-        >
+        <form className="sign-up-form" onSubmit={handleSubmit}>
           <div className="sign-up-input-entry">
             <label htmlFor="username">Nombre de usuario:</label>
             <input
@@ -64,7 +66,7 @@ const SignIn = () => {
           <div className="sign-up-input-entry">
             <label htmlFor="privateKey">Llave privada:</label>
             <input
-              type="privateKey"
+              type="password"
               id="privateKey"
               name="privateKey"
               value={formData.privateKey}
@@ -73,7 +75,7 @@ const SignIn = () => {
             />
           </div>
           <div className="sign-up-buttons">
-            <Button buttonText="Iniciar Sesión" type="submit" onClick={handleSubmit} />
+            <Button buttonText="Iniciar Sesión" type="submit" />
             <Link to="/"><Button buttonText="Volver" type="button" /></Link>
           </div>
         </form>

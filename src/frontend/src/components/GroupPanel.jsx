@@ -7,11 +7,17 @@ const GroupPanel = ({ groupId, groupName, closeMail }) => {
   const [messages, setMessages] = useState([])
 
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_APP_API_URL}/messages/groups/${groupId}`)
-    .then((response) => {
-      setMessages(response.data)
+    const token = localStorage.getItem('token')
+    axios.get(`${import.meta.env.VITE_APP_API_URL}/messages/groups/${groupId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
     })
-    .catch((error) => console.error('Error al realizar la solicitud', error))    
+      .then((response) => {
+        setMessages(response.data)
+      })
+      .catch((error) => console.error('Error al realizar la solicitud', error))    
   }, [groupId])
 
   return (
@@ -21,20 +27,13 @@ const GroupPanel = ({ groupId, groupName, closeMail }) => {
       </div>
       <div className="group-messages">
         {messages && messages.map((message, index) => (
-          <div
-            key={index}
-            className="group-message"
-          >
+          <div key={index} className="group-message">
             <h2>{message.author}: {message.mensaje}</h2>
           </div>
         ))}
       </div>
       <div className="close-group-button">
-        <Button
-          buttonText="Cerrar Correo"
-          type="button"
-          onClick={() => closeMail(0)}
-        />
+        <Button buttonText="Cerrar Correo" type="button" onClick={() => closeMail(0)} />
       </div>
     </div>
   )
